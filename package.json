@@ -1,0 +1,30 @@
+{
+  "name": "token-nft-connector",
+  "version": "1.0.0",
+  "description": "Contract that is integrated with Pancakeswap to exchange any tokens for POOLX DelayVault NFT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/The-Poolz/TokenNFTConnector.git"
+  },
+  "keywords": [
+    "POOLX",
+    "NFT",
+    "DelayVaultProvider",
+    "DelayVault",
+    "TokenNFTConnector"
+  ],
+  "author": "The-Poolz @ Andrew Dmytrenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/The-Poolz/TokenNFTConnector/issues"
+  },
+  "homepage": "https://github.com/The-Poolz/TokenNFTConnector#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.4"
+  }
+}
