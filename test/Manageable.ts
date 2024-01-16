@@ -1,17 +1,17 @@
 import { SwapperMock, DelayMock } from "../typechain-types"
 import { ERC20Token } from "../typechain-types/@poolzfinance/poolz-helper-v2/contracts/token/ERC20Token"
 import { TokenNFTConnector } from "../typechain-types/contracts/TokenNFTConnector"
-import { deployed } from "@poolzfinance/poolz-helper-v2"
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { expect } from "chai"
 import { ethers } from "hardhat"
 
-describe("TokenNFTConnector", function () {
+describe("Connector Manageable", function () {
     let tokenNFTConnector: TokenNFTConnector
     let token: ERC20Token
     let tokenToSwap: ERC20Token
+    let owner: SignerWithAddress
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
-    let owner: SignerWithAddress
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
@@ -31,5 +31,30 @@ describe("TokenNFTConnector", function () {
         ])
     })
 
-    it("temp ", async () => {})
+    it("should set owner address after creation", async () => {
+        const ownerAddress = await tokenNFTConnector.owner()
+        expect(ownerAddress).to.equal(await ethers.provider.getSigner(0).getAddress())
+    })
+
+    it("should pause contract", async () => {
+        await tokenNFTConnector.connect(owner).pause()
+        expect(await tokenNFTConnector.paused()).to.equal(true)
+    })
+
+    it("should unpause contract", async () => {
+        await tokenNFTConnector.connect(owner).unpause()
+        expect(await tokenNFTConnector.paused()).to.equal(false)
+    })
+
+    it("should set fee amount", async () => {
+        await tokenNFTConnector.connect(owner).setFee(100)
+        expect(await tokenNFTConnector.projectOwnerFee()).to.equal(100)
+    })
+
+    it("should pause createLeaderboard", async () => {
+        await tokenNFTConnector.connect(owner).pause()
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(token.address, "1000")).to.be.revertedWith(
+            "Pausable: paused"
+        )
+    })
 })
