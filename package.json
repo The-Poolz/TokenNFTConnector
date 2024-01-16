@@ -26,5 +26,10 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "hardhat": "^2.19.4"
+  },
+  "dependencies": {
+    "@pancakeswap/v3-core": "^1.0.2",
+    "@pancakeswap/v3-periphery": "^1.0.2",
+    "v3-periphery": "^1.2.1"
   }
 }
