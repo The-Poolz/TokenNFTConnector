@@ -12,7 +12,7 @@ contract DelayMock is IDelayVaultProvider {
         uint256[] memory params
     ) external returns (uint256 poolId) {
         require(params.length == 1, "DelayMock: wrong params length");
-        ownerToAmount[owner] = params[0];
+        ownerToAmount[owner] += params[0];
         poolId = counter++;
     }
 }

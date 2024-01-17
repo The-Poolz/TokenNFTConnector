@@ -10,12 +10,16 @@ contract ConnectorManageable is Ownable, Pausable {
     IERC20 public token;
 
     constructor(IERC20 _token, uint256 _projectOwnerFee) {
-        require(address(_token) != address(0), "ConnectorManageable: ZERO_ADDRESS");
+        require(
+            address(_token) != address(0),
+            "ConnectorManageable: token is zero address"
+        );
         token = _token;
         projectOwnerFee = _projectOwnerFee;
     }
 
     function setFee(uint24 fee) external onlyOwner {
+        require(fee < 10000, "ConnectorManageable: invalid fee");
         projectOwnerFee = fee;
     }
 
@@ -29,7 +33,7 @@ contract ConnectorManageable is Ownable, Pausable {
 
     function withdrawFee() external onlyOwner {
         uint256 balance = token.balanceOf(address(this));
-        require(balance > 0, "TokenNFTConnector: ZERO_BALANCE");
+        require(balance > 0, "ConnectorManageable: balance is zero");
         token.transfer(owner(), balance);
     }
 

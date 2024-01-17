@@ -1,7 +1,6 @@
 import { SwapperMock, DelayMock } from "../typechain-types"
 import { ERC20Token } from "../typechain-types/@poolzfinance/poolz-helper-v2/contracts/token/ERC20Token"
 import { TokenNFTConnector } from "../typechain-types/contracts/TokenNFTConnector"
-import { deployed } from "@poolzfinance/poolz-helper-v2"
 import { expect } from "chai"
 import { ethers } from "hardhat"
 
@@ -12,6 +11,7 @@ describe("TokenNFTConnector", function () {
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
     let owner: SignerWithAddress
+    const amount = ethers.utils.parseUnits("100", 18)
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
@@ -22,14 +22,37 @@ describe("TokenNFTConnector", function () {
         token = await Token.deployed()
         swapRouter = await SwapRouter.deployed()
         delayVaultProvider = await DelayVaultProvider.deployed()
+        tokenToSwap = await TokenToSwap.deployed()
         tokenNFTConnector = await ethers.deployContract("TokenNFTConnector", [
             token.address,
             swapRouter.address,
             delayVaultProvider.address,
-            `0`,
+            `3000`,
             `0`,
         ])
+        // approve token to swap
+        await tokenToSwap.approve(tokenNFTConnector.address, ethers.utils.parseUnits("100000", 18))
     })
 
-    it("temp ", async () => {})
+    it("should increase delay NFT counter", async () => {
+        const currentCounter = await delayVaultProvider.counter()
+        await tokenNFTConnector.connect(owner).createLeaderboard(tokenToSwap.address, amount)
+        expect(await delayVaultProvider.counter()).to.equal(currentCounter.add(1))
+    })
+
+    it("should increase user delay amount", async () => {
+        const user = await ethers.provider.getSigner(1)
+        const userAddress = await user.getAddress()
+        await tokenToSwap.transfer(userAddress, amount)
+        await tokenToSwap.connect(user).approve(tokenNFTConnector.address, amount)
+        await tokenNFTConnector.connect(user).createLeaderboard(tokenToSwap.address, amount)
+        expect(await delayVaultProvider.ownerToAmount(userAddress)).to.equal(amount.mul(2))
+    })
+
+    it("should revert if no allowance", async () => {
+        const user = await ethers.provider.getSigner(2)
+        await expect(tokenNFTConnector.connect(user).createLeaderboard(tokenToSwap.address, amount)).to.be.revertedWith(
+            "TokenNFTCoonector: no allowance"
+        )
+    })
 })

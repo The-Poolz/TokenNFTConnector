@@ -8,14 +8,12 @@ import { ethers } from "hardhat"
 describe("Connector Manageable", function () {
     let tokenNFTConnector: TokenNFTConnector
     let token: ERC20Token
-    let tokenToSwap: ERC20Token
     let owner: SignerWithAddress
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
-        const TokenToSwap = await ethers.deployContract("ERC20Token", ["TEST", "test"])
         const SwapRouter = await ethers.deployContract("SwapperMock")
         const DelayVaultProvider = await ethers.deployContract("DelayMock")
         const Token = await ethers.deployContract("ERC20Token", ["TEST", "test"])
@@ -26,7 +24,7 @@ describe("Connector Manageable", function () {
             token.address,
             swapRouter.address,
             delayVaultProvider.address,
-            `0`,
+            `3000`,
             `0`,
         ])
     })
@@ -56,5 +54,16 @@ describe("Connector Manageable", function () {
         await expect(tokenNFTConnector.connect(owner).createLeaderboard(token.address, "1000")).to.be.revertedWith(
             "Pausable: paused"
         )
+    })
+
+    it("owner can't set invalid fee amount", async () => {
+        await expect(tokenNFTConnector.connect(owner).setFee(10001)).to.be.revertedWith(
+            "ConnectorManageable: invalid fee"
+        )
+    })
+
+    it("should return the amount after deducting fee", async () => {
+        await tokenNFTConnector.connect(owner).setFee(1000)
+        expect(await tokenNFTConnector.connect(owner).calcMinusFee(1000)).to.equal(900)
     })
 })
