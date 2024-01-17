@@ -11,22 +11,25 @@ describe("Connector Manageable", function () {
     let owner: SignerWithAddress
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
+    const amount = ethers.utils.parseUnits("100", 18)
+    const poolFee = `3000`
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
         const SwapRouter = await ethers.deployContract("SwapperMock")
-        const DelayVaultProvider = await ethers.deployContract("DelayMock")
         const Token = await ethers.deployContract("ERC20Token", ["TEST", "test"])
         token = await Token.deployed()
+        const DelayVaultProvider = await ethers.deployContract("DelayMock", [token.address])
         swapRouter = await SwapRouter.deployed()
         delayVaultProvider = await DelayVaultProvider.deployed()
         tokenNFTConnector = await ethers.deployContract("TokenNFTConnector", [
             token.address,
             swapRouter.address,
             delayVaultProvider.address,
-            `3000`,
+            poolFee,
             `0`,
         ])
+        await token.approve(tokenNFTConnector.address, amount.mul(100))
     })
 
     it("should set owner address after creation", async () => {
@@ -47,6 +50,12 @@ describe("Connector Manageable", function () {
     it("should set fee amount", async () => {
         await tokenNFTConnector.connect(owner).setFee(100)
         expect(await tokenNFTConnector.projectOwnerFee()).to.equal(100)
+    })
+
+    it("should revert if the fee balance is empty", async () => {
+        await expect(tokenNFTConnector.connect(owner).withdrawFee()).to.be.revertedWith(
+            "ConnectorManageable: balance is zero"
+        )
     })
 
     it("should pause createLeaderboard", async () => {

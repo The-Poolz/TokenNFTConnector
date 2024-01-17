@@ -12,14 +12,15 @@ describe("TokenNFTConnector", function () {
     let delayVaultProvider: DelayMock
     let owner: SignerWithAddress
     const amount = ethers.utils.parseUnits("100", 18)
+    const poolFee = `3000`
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
         const TokenToSwap = await ethers.deployContract("ERC20Token", ["TEST", "test"])
         const SwapRouter = await ethers.deployContract("SwapperMock")
-        const DelayVaultProvider = await ethers.deployContract("DelayMock")
         const Token = await ethers.deployContract("ERC20Token", ["TEST", "test"])
         token = await Token.deployed()
+        const DelayVaultProvider = await ethers.deployContract("DelayMock", [token.address])
         swapRouter = await SwapRouter.deployed()
         delayVaultProvider = await DelayVaultProvider.deployed()
         tokenToSwap = await TokenToSwap.deployed()
@@ -27,7 +28,7 @@ describe("TokenNFTConnector", function () {
             token.address,
             swapRouter.address,
             delayVaultProvider.address,
-            `3000`,
+            poolFee,
             `0`,
         ])
         // approve token to swap
