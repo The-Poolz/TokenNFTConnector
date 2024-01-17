@@ -20,7 +20,7 @@ describe("TokenNFTConnector", function () {
         const SwapRouter = await ethers.deployContract("SwapperMock")
         const Token = await ethers.deployContract("ERC20Token", ["TEST", "test"])
         token = await Token.deployed()
-        const DelayVaultProvider = await ethers.deployContract("DelayMock", [token.address])
+        const DelayVaultProvider = await ethers.deployContract("DelayMock")
         swapRouter = await SwapRouter.deployed()
         delayVaultProvider = await DelayVaultProvider.deployed()
         tokenToSwap = await TokenToSwap.deployed()
