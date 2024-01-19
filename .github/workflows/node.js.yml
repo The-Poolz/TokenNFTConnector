@@ -4,7 +4,7 @@ on:
     pull_request:
 
 jobs:
-    Gas-Test:
+    Test:
         runs-on: ubuntu-latest
         if: github.event_name == 'pull_request' # This line ensures that this job only runs on pull requests
         steps:
