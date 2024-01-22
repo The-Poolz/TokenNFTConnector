@@ -4,9 +4,10 @@ pragma solidity ^0.8.0;
 import "../interfaces/ISwapRouter.sol";
 
 contract SwapperMock is ISwapRouter {
-    function exactInputSingle(
-        ExactInputSingleParams calldata params
-    ) external payable returns (uint256 amountOut) {
-        amountOut = params.amountIn * 2;
+    function multicall(
+        bytes[] calldata data
+    ) external payable override returns (bytes[] memory results) {
+        results = new bytes[](data.length);
+        results[data.length - 1] = abi.encode(100);
     }
 }

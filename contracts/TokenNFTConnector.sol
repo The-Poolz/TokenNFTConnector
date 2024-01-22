@@ -8,13 +8,11 @@ import "./ConnectorManageable.sol";
 contract TokenNFTConnector is ConnectorManageable {
     ISwapRouter public swapRouter;
     IDelayVaultProvider public delayVaultProvider;
-    uint24 poolFee;
 
     constructor(
         IERC20 _token,
         ISwapRouter _swapRouter,
         IDelayVaultProvider _delayVaultProvider,
-        uint24 _poolFee,
         uint256 _projectOwnerFee
     ) ConnectorManageable(_token, _projectOwnerFee) {
         require(
@@ -27,7 +25,6 @@ contract TokenNFTConnector is ConnectorManageable {
         );
         swapRouter = _swapRouter;
         delayVaultProvider = _delayVaultProvider;
-        poolFee = _poolFee;
     }
 
     function createLeaderboard(
@@ -42,9 +39,10 @@ contract TokenNFTConnector is ConnectorManageable {
         tokenToSwap.transferFrom(msg.sender, address(this), amountIn);
         tokenToSwap.approve(address(swapRouter), amountIn);
         bytes[] memory results = swapRouter.multicall(data);
-        amountOut = calcMinusFee(
-            abi.decode(results[results.length - 1], (uint256))
-        );
+        for (uint256 i = 0; i < results.length; ++i) {
+            amountOut += abi.decode(results[i], (uint256));
+        }
+        amountOut = calcMinusFee(amountOut);
         token.approve(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
