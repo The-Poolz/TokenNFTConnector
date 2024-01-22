@@ -32,7 +32,8 @@ contract TokenNFTConnector is ConnectorManageable {
 
     function createLeaderboard(
         IERC20 tokenToSwap,
-        uint256 amountIn
+        uint256 amountIn,
+        bytes[] calldata data
     ) external whenNotPaused returns (uint256 amountOut) {
         require(
             tokenToSwap.allowance(msg.sender, address(this)) >= amountIn,
@@ -40,18 +41,10 @@ contract TokenNFTConnector is ConnectorManageable {
         );
         tokenToSwap.transferFrom(msg.sender, address(this), amountIn);
         tokenToSwap.approve(address(swapRouter), amountIn);
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: address(tokenToSwap),
-                tokenOut: address(token),
-                fee: poolFee,
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: amountIn,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
-        amountOut = calcMinusFee(swapRouter.exactInputSingle(params));
+        bytes[] memory results = swapRouter.multicall(data);
+        amountOut = calcMinusFee(
+            abi.decode(results[results.length - 1], (uint256))
+        );
         token.approve(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
