@@ -3,9 +3,10 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IDelayVaultProvider.sol";
 import "./interfaces/ISwapRouter.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./ConnectorManageable.sol";
 
-contract TokenNFTConnector is ConnectorManageable {
+contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
     ISwapRouter public swapRouter;
     IDelayVaultProvider public delayVaultProvider;
 
@@ -31,7 +32,7 @@ contract TokenNFTConnector is ConnectorManageable {
         IERC20 tokenToSwap,
         uint256 amountIn,
         bytes[] calldata data
-    ) external whenNotPaused returns (uint256 amountOut) {
+    ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
         require(
             tokenToSwap.allowance(msg.sender, address(this)) >= amountIn,
             "TokenNFTCoonector: no allowance"
