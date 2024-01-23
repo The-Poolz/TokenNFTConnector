@@ -8,6 +8,7 @@ contract SwapperMock is ISwapRouter {
         bytes[] calldata data
     ) external payable override returns (bytes[] memory results) {
         results = new bytes[](data.length);
-        results[data.length - 1] = abi.encode(100);
+        uint256 temp = abi.decode(data[data.length - 1], (uint256));
+        results[data.length - 1] = abi.encode(temp * 2);
     }
 }
