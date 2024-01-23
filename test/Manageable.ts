@@ -12,23 +12,21 @@ describe("Connector Manageable", function () {
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
     const amount = ethers.utils.parseUnits("100", 18)
-    const poolFee = `3000`
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
-        const SwapRouter = await ethers.deployContract("SwapperMock")
-        const Token = await ethers.deployContract("ERC20Token", ["TEST", "test"])
+        const SwapRouter = (await ethers.deployContract("SwapperMock")) as SwapperMock
+        const Token = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
         token = await Token.deployed()
-        const DelayVaultProvider = await ethers.deployContract("DelayMock")
+        const DelayVaultProvider = (await ethers.deployContract("DelayMock")) as DelayMock
         swapRouter = await SwapRouter.deployed()
         delayVaultProvider = await DelayVaultProvider.deployed()
-        tokenNFTConnector = await ethers.deployContract("TokenNFTConnector", [
+        tokenNFTConnector = (await ethers.deployContract("TokenNFTConnector", [
             token.address,
             swapRouter.address,
             delayVaultProvider.address,
-            poolFee,
             `0`,
-        ])
+        ])) as TokenNFTConnector
         await token.approve(tokenNFTConnector.address, amount.mul(100))
     })
 
@@ -60,7 +58,7 @@ describe("Connector Manageable", function () {
 
     it("should pause createLeaderboard", async () => {
         await tokenNFTConnector.connect(owner).pause()
-        await expect(tokenNFTConnector.connect(owner).createLeaderboard(token.address, "1000")).to.be.revertedWith(
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(token.address, "1000", [])).to.be.revertedWith(
             "Pausable: paused"
         )
     })
