@@ -8,23 +8,29 @@ import { ethers } from "hardhat"
 describe("Connector Manageable", function () {
     let tokenNFTConnector: TokenNFTConnector
     let token: ERC20Token
+    let pairToken: ERC20Token
     let owner: SignerWithAddress
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
     const amount = ethers.utils.parseUnits("100", 18)
+    const poolFee = `3000`
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
         const SwapRouter = (await ethers.deployContract("SwapperMock")) as SwapperMock
         const Token = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
         token = await Token.deployed()
+        const PairToken = (await ethers.deployContract("ERC20Token", ["USDT", "usdt"])) as ERC20Token
+        pairToken = await PairToken.deployed()
         const DelayVaultProvider = (await ethers.deployContract("DelayMock")) as DelayMock
         swapRouter = await SwapRouter.deployed()
         delayVaultProvider = await DelayVaultProvider.deployed()
         tokenNFTConnector = (await ethers.deployContract("TokenNFTConnector", [
             token.address,
+            pairToken.address,
             swapRouter.address,
             delayVaultProvider.address,
+            poolFee,
             `0`,
         ])) as TokenNFTConnector
         await token.approve(tokenNFTConnector.address, amount.mul(100))

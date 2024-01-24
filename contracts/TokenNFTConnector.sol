@@ -36,7 +36,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
         bytes calldata path,
         uint256 amountIn
     ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
-        // Decode the first 32 bytes to get the first token address
+        // Decode the first token address
         IERC20 tokenToSwap = path.length > 31
             ? IERC20(abi.decode(path, (address)))
             : pairToken;
@@ -61,7 +61,6 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
                 amountOutMinimum: 0
             })
         );
-
         amountOut = calcMinusFee(amountOut);
         token.approve(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
