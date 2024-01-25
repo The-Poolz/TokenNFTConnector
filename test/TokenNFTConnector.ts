@@ -61,7 +61,7 @@ describe("TokenNFTConnector", function () {
     it("should revert if no allowance", async () => {
         const user = await ethers.provider.getSigner(2)
         await expect(tokenNFTConnector.connect(user).createLeaderboard("0x", amount)).to.be.revertedWith(
-            "TokenNFTCoonector: no allowance"
+            "TokenNFTConnector: no allowance"
         )
     })
 })
