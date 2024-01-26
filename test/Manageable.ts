@@ -52,7 +52,7 @@ describe("Connector Manageable", function () {
     })
 
     it("should set fee amount", async () => {
-        await tokenNFTConnector.connect(owner).setFee(100)
+        await tokenNFTConnector.connect(owner).setProjectOwnerFee(100)
         expect(await tokenNFTConnector.projectOwnerFee()).to.equal(100)
     })
 
@@ -70,13 +70,13 @@ describe("Connector Manageable", function () {
     })
 
     it("owner can't set invalid fee amount", async () => {
-        await expect(tokenNFTConnector.connect(owner).setFee(10001)).to.be.revertedWith(
+        await expect(tokenNFTConnector.connect(owner).setProjectOwnerFee(10001)).to.be.revertedWith(
             "ConnectorManageable: invalid fee"
         )
     })
 
     it("should return the amount after deducting fee", async () => {
-        await tokenNFTConnector.connect(owner).setFee(1000)
+        await tokenNFTConnector.connect(owner).setProjectOwnerFee(1000)
         expect(await tokenNFTConnector.connect(owner).calcMinusFee(1000)).to.equal(900)
     })
 })

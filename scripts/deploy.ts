@@ -10,12 +10,14 @@ async function main() {
     const USDTTestnet = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
     const delayVaultProviderTestnet = "0x9fd743f499d852E3A2cFEAC037e5562126468D28"
     const smartRouterTestnet = "0x9a489505a00cE272eAa5e07Dba6491314CaE3796"
+    const poolFee = "100"
 
     const tokenNFTConnector = await ethers.deployContract("TokenNFTConnector", [
         POOLXTestnet,
         USDTTestnet,
         smartRouterTestnet,
         delayVaultProviderTestnet,
+        poolFee,
         0,
     ])
     console.log("TokenNFTConnector deployed to:", tokenNFTConnector.address)

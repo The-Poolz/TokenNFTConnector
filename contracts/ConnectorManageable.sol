@@ -18,7 +18,7 @@ contract ConnectorManageable is Ownable, Pausable {
         projectOwnerFee = _projectOwnerFee;
     }
 
-    function setFee(uint24 fee) external onlyOwner {
+    function setProjectOwnerFee(uint24 fee) external onlyOwner {
         require(fee < 10000, "ConnectorManageable: invalid fee");
         projectOwnerFee = fee;
     }

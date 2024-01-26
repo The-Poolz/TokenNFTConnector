@@ -10,12 +10,19 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
     ISwapRouter public immutable swapRouter;
     IDelayVaultProvider public immutable delayVaultProvider;
     IERC20 public immutable pairToken;
+    uint24 private immutable poolFee; // last pair fee
+
+    struct SwapParams {
+        address token;
+        uint24 fee;
+    }
 
     constructor(
         IERC20 _token,
         IERC20 _pairToken,
         ISwapRouter _swapRouter,
         IDelayVaultProvider _delayVaultProvider,
+        uint24 _poolFee,
         uint256 _projectOwnerFee
     ) ConnectorManageable(_token, _projectOwnerFee) {
         require(
@@ -24,18 +31,20 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
                 address(_pairToken) != address(0),
             "TokenNFTConnector: ZERO_ADDRESS"
         );
+        require(token != _pairToken, "TokenNFTConnector: SAME_TOKENS_IN_PAIR");
         swapRouter = _swapRouter;
         delayVaultProvider = _delayVaultProvider;
         pairToken = _pairToken;
+        poolFee = _poolFee;
     }
 
     function createLeaderboard(
-        address[] calldata tokens,
-        uint24 poolFee,
-        uint256 amountIn
+        uint256 amountIn,
+        SwapParams[] calldata poolsData
     ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
-        IERC20 tokenToSwap = (tokens.length > 0)
-            ? IERC20(tokens[0])
+        IERC20 tokenToSwap = (poolsData.length > 0 &&
+            poolsData[0].token != address(0))
+            ? IERC20(poolsData[0].token)
             : pairToken;
         require(
             tokenToSwap.allowance(msg.sender, address(this)) >= amountIn,
@@ -47,7 +56,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
 
         amountOut = swapRouter.exactInput(
             ISwapRouter.ExactInputParams({
-                path: getBytes(tokens, poolFee),
+                path: getBytes(poolsData),
                 recipient: address(this),
                 amountIn: amountIn,
                 amountOutMinimum: 0
@@ -62,13 +71,16 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
     }
 
     function getBytes(
-        address[] calldata tokens,
-        uint24 poolFee
+        SwapParams[] memory data
     ) public view returns (bytes memory result) {
-        for (uint256 i; i < tokens.length; ++i) {
+        for (uint256 i; i < data.length; ++i) {
+            require(
+                data[i].token != address(0),
+                "TokenNFTConnector: ZERO_ADDRESS"
+            );
             result = concatenateBytes(
                 result,
-                abi.encodePacked(tokens[i], poolFee)
+                abi.encodePacked(data[i].token, data[i].fee)
             );
         }
         // add last path element
