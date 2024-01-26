@@ -62,7 +62,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
             })
         );
         amountOut = calcMinusFee(amountOut);
-
+        
         token.approve(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
@@ -70,7 +70,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
     }
 
     function getBytes(
-        SwapParams[] memory data
+        SwapParams[] calldata data
     ) public view returns (bytes memory result) {
         for (uint256 i; i < data.length; ++i) {
             require(
@@ -93,14 +93,6 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
         bytes memory _bytes1,
         bytes memory _bytes2
     ) public pure returns (bytes memory result) {
-        uint256 length = _bytes1.length;
-        uint256 length2 = _bytes2.length;
-        result = new bytes(length + length2);
-        for (uint256 i = 0; i < length; ++i) {
-            result[i] = _bytes1[i];
-        }
-        for (uint256 i = 0; i < length2; ++i) {
-            result[length + i] = _bytes2[i];
-        }
+        result = abi.encodePacked(_bytes1, _bytes2);
     }
 }
