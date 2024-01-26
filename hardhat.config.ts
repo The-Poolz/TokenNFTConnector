@@ -10,7 +10,7 @@ const config: HardhatUserConfig = {
             {
                 version: "0.8.19",
                 settings: {
-                    evmVersion: "byzantium",
+                    evmVersion: "istanbul",
                     optimizer: {
                         enabled: true,
                         runs: 200,
