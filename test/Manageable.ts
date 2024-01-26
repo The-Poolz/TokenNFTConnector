@@ -64,7 +64,7 @@ describe("Connector Manageable", function () {
 
     it("should pause createLeaderboard", async () => {
         await tokenNFTConnector.connect(owner).pause()
-        await expect(tokenNFTConnector.connect(owner).createLeaderboard(token.address, "1000", [])).to.be.revertedWith(
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard("1000", [])).to.be.revertedWith(
             "Pausable: paused"
         )
     })

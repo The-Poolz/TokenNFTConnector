@@ -14,8 +14,8 @@ describe("TokenNFTConnector", function () {
     let delayVaultProvider: DelayMock
     let owner: SignerWithAddress
     const amount = ethers.utils.parseUnits("100", 18)
-    const data = ethers.utils.defaultAbiCoder.encode(["uint256"], [amount])
-    const poolFee = `3000`
+    let pairData: TokenNFTConnector.SwapParamsStruct[]
+    const poolFee = 3000
 
     before(async () => {
         ;[owner] = await ethers.getSigners()
@@ -39,12 +39,12 @@ describe("TokenNFTConnector", function () {
         ])) as TokenNFTConnector
         // approve token to swap
         await tokenToSwap.approve(tokenNFTConnector.address, ethers.utils.parseUnits("100000", 18))
+        pairData = [{ token: tokenToSwap.address, fee: poolFee }]
     })
 
     it("should increase delay NFT counter", async () => {
         const currentCounter = await delayVaultProvider.counter()
-        const packedData = ethers.utils.defaultAbiCoder.encode(["address", "uint256"], [tokenToSwap.address, "100"])
-        await tokenNFTConnector.connect(owner).createLeaderboard(packedData, amount)
+        await tokenNFTConnector.connect(owner).createLeaderboard(amount, pairData)
         expect(await delayVaultProvider.counter()).to.equal(currentCounter.add(1))
     })
 
@@ -53,14 +53,13 @@ describe("TokenNFTConnector", function () {
         const userAddress = await user.getAddress()
         await tokenToSwap.transfer(userAddress, amount)
         await tokenToSwap.connect(user).approve(tokenNFTConnector.address, amount)
-        const packedData = ethers.utils.defaultAbiCoder.encode(["address", "uint256"], [tokenToSwap.address, "100"])
-        await tokenNFTConnector.connect(user).createLeaderboard(packedData, amount)
+        await tokenNFTConnector.connect(user).createLeaderboard(amount, pairData)
         expect(await delayVaultProvider.ownerToAmount(userAddress)).to.equal(amount.mul(2))
     })
 
     it("should revert if no allowance", async () => {
         const user = await ethers.provider.getSigner(2)
-        await expect(tokenNFTConnector.connect(user).createLeaderboard("0x", amount)).to.be.revertedWith(
+        await expect(tokenNFTConnector.connect(user).createLeaderboard(amount, [])).to.be.revertedWith(
             "TokenNFTConnector: no allowance"
         )
     })

@@ -42,8 +42,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
         uint256 amountIn,
         SwapParams[] calldata poolsData
     ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
-        IERC20 tokenToSwap = (poolsData.length > 0 &&
-            poolsData[0].token != address(0))
+        IERC20 tokenToSwap = (poolsData.length > 0)
             ? IERC20(poolsData[0].token)
             : pairToken;
         require(
