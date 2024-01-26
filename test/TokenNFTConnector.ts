@@ -20,9 +20,9 @@ describe("TokenNFTConnector", function () {
     before(async () => {
         ;[owner] = await ethers.getSigners()
         const TokenToSwap = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
-        const SwapRouter = (await ethers.deployContract("SwapperMock")) as SwapperMock
         const Token = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
         token = await Token.deployed()
+        const SwapRouter = (await ethers.deployContract("SwapperMock", [token.address])) as SwapperMock
         const PairToken = (await ethers.deployContract("ERC20Token", ["USDT", "usdt"])) as ERC20Token
         pairToken = await PairToken.deployed()
         const DelayVaultProvider = (await ethers.deployContract("DelayMock")) as DelayMock
@@ -38,8 +38,9 @@ describe("TokenNFTConnector", function () {
             `0`,
         ])) as TokenNFTConnector
         // approve token to swap
-        await tokenToSwap.approve(tokenNFTConnector.address, ethers.utils.parseUnits("100000", 18))
+        await tokenToSwap.approve(tokenNFTConnector.address, amount.mul(100))
         pairData = [{ token: tokenToSwap.address, fee: poolFee }]
+        await token.transfer(swapRouter.address, amount.mul(100))
     })
 
     it("should increase delay NFT counter", async () => {
