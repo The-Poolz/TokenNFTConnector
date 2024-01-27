@@ -2,13 +2,29 @@
 pragma solidity ^0.8.0;
 
 import "../interfaces/ISwapRouter.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract SwapperMock is ISwapRouter {
-    function multicall(
-        bytes[] calldata data
-    ) external payable override returns (bytes[] memory results) {
-        results = new bytes[](data.length);
-        uint256 temp = abi.decode(data[data.length - 1], (uint256));
-        results[data.length - 1] = abi.encode(temp * 2);
+    IERC20 public token;
+
+    constructor(address _token) {
+        token = IERC20(_token);
+    }
+
+    function exactInput(
+        ExactInputParams calldata params
+    ) external payable returns (uint256 amountOut) {
+        require(
+            token.balanceOf(address(this)) > calcFee(params.amountIn),
+            "SwapperMock: not enough balance"
+        );
+        amountOut = params.amountIn * 2;
+        uint256 fee = calcFee(amountOut);
+        // return fee to sender
+        token.transfer(msg.sender, fee);
+    }
+
+    function calcFee(uint256 amount) public pure returns (uint256 leftAmount) {
+        leftAmount = (amount * 1000) / 10000;
     }
 }
