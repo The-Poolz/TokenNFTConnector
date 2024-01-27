@@ -45,6 +45,25 @@ npx hardhat coverage
 
 ## How it works?
 
+The **TokenNFTConnector** contract operates in the following steps:
+
+1. **Token Swap:**
+
+    - Users call the `createLeaderboard` function, providing the amount of tokens they want to swap and an array of `SwapParams` specifying the tokens to swap through and their.
+    - The contract uses PancakeSwap's router (`ISwapRouter`) to execute the token swap. It calculates the path based on the provided swap parameters and swaps the tokens, considering the pool fees.
+
+2. **Fee Deduction:**
+
+    - The contract calculates the remaining amount after deducting the project owner fee using the `calcMinusFee` function.
+
+3. **DelayVault Creation:**
+
+    - The remaining amount after fees is then approved for the `DelayVaultProvider` contract.
+    - The contract calls `createNewDelayVault` on the `DelayVaultProvider`, associating the newly created `DelayVault` with the user.
+
+4. **Result:**
+    - Users receive a `POOLX DelayVault NFT` associated with the [POOLX](https://bscscan.com/token/0xbaea9aba1454df334943951d51116ae342eab255) tokens.
+
 ## Contracts UML
 
 ![classDiagram](https://github.com/The-Poolz/LockDealNFT.DelayVaultProvider/assets/68740472/1610209b-61ce-41ac-9485-cb7d92e49235)
