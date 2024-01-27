@@ -47,6 +47,8 @@ npx hardhat coverage
 
 ## Contracts UML
 
+![classDiagram](https://github.com/The-Poolz/LockDealNFT.DelayVaultProvider/assets/68740472/1610209b-61ce-41ac-9485-cb7d92e49235)
+
 ## License
 
 [The-Poolz](https://poolz.finance/) Contracts is released under the [MIT License](https://github.com/The-Poolz/TokenNFTConnector/blob/master/LICENSE).
