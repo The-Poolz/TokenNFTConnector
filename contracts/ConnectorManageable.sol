@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract ConnectorManageable is Ownable, Pausable {
     uint256 public projectOwnerFee;
-    IERC20 public token;
+    IERC20 public immutable token;
 
     constructor(IERC20 _token, uint256 _projectOwnerFee) {
         require(
@@ -18,7 +18,7 @@ contract ConnectorManageable is Ownable, Pausable {
         projectOwnerFee = _projectOwnerFee;
     }
 
-    function setFee(uint24 fee) external onlyOwner {
+    function setProjectOwnerFee(uint24 fee) external onlyOwner {
         require(fee < 10000, "ConnectorManageable: invalid fee");
         projectOwnerFee = fee;
     }
