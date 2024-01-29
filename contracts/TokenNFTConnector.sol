@@ -7,46 +7,92 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./ConnectorManageable.sol";
 
 contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
-    ISwapRouter public swapRouter;
-    IDelayVaultProvider public delayVaultProvider;
+    ISwapRouter public immutable swapRouter;
+    IDelayVaultProvider public immutable delayVaultProvider;
+    IERC20 public immutable pairToken;
+    uint24 private immutable poolFee; // last pair fee
+
+    struct SwapParams {
+        address token;
+        uint24 fee;
+    }
 
     constructor(
         IERC20 _token,
+        IERC20 _pairToken,
         ISwapRouter _swapRouter,
         IDelayVaultProvider _delayVaultProvider,
+        uint24 _poolFee,
         uint256 _projectOwnerFee
     ) ConnectorManageable(_token, _projectOwnerFee) {
         require(
-            address(_swapRouter) != address(0),
+            address(_swapRouter) != address(0) &&
+                address(_delayVaultProvider) != address(0) &&
+                address(_pairToken) != address(0),
             "TokenNFTConnector: ZERO_ADDRESS"
         );
-        require(
-            address(_delayVaultProvider) != address(0),
-            "TokenNFTConnector: ZERO_ADDRESS"
-        );
+        require(token != _pairToken, "TokenNFTConnector: SAME_TOKENS_IN_PAIR");
         swapRouter = _swapRouter;
         delayVaultProvider = _delayVaultProvider;
+        pairToken = _pairToken;
+        poolFee = _poolFee;
     }
 
     function createLeaderboard(
-        IERC20 tokenToSwap,
         uint256 amountIn,
-        bytes[] calldata data
+        SwapParams[] calldata poolsData
     ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
+        IERC20 tokenToSwap = (poolsData.length > 0)
+            ? IERC20(poolsData[0].token)
+            : pairToken;
         require(
             tokenToSwap.allowance(msg.sender, address(this)) >= amountIn,
-            "TokenNFTCoonector: no allowance"
+            "TokenNFTConnector: no allowance"
         );
+
         tokenToSwap.transferFrom(msg.sender, address(this), amountIn);
         tokenToSwap.approve(address(swapRouter), amountIn);
-        bytes[] memory results = swapRouter.multicall(data);
-        for (uint256 i = 0; i < results.length; ++i) {
-            amountOut += abi.decode(results[i], (uint256));
-        }
+
+        amountOut = swapRouter.exactInput(
+            ISwapRouter.ExactInputParams({
+                path: getBytes(poolsData),
+                recipient: address(this),
+                amountIn: amountIn,
+                amountOutMinimum: 0
+            })
+        );
         amountOut = calcMinusFee(amountOut);
+        
         token.approve(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
         delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
+    }
+
+    function getBytes(
+        SwapParams[] calldata data
+    ) public view returns (bytes memory result) {
+        for (uint256 i; i < data.length; ++i) {
+            require(
+                data[i].token != address(0),
+                "TokenNFTConnector: ZERO_ADDRESS"
+            );
+            result = concatenateBytes(
+                result,
+                abi.encodePacked(data[i].token, data[i].fee)
+            );
+        }
+        // add last path element
+        result = concatenateBytes(
+            result,
+            abi.encodePacked(address(pairToken), poolFee, address(token))
+        );
+    }
+
+    function concatenateBytes(
+        bytes memory _bytes1,
+        bytes memory _bytes2
+    ) public pure returns (bytes memory result) {
+        result = abi.encodePacked(_bytes1, _bytes2);
     }
 }
