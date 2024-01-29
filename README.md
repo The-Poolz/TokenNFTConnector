@@ -64,6 +64,71 @@ The **TokenNFTConnector** contract operates in the following steps:
 4. **Result:**
     - Users receive a `POOLX DelayVault NFT` associated with the [POOLX](https://bscscan.com/token/0xbaea9aba1454df334943951d51116ae342eab255) tokens.
 
+## Functionality
+
+### Swap tokens
+
+```solidity
+function createLeaderboard(uint256 amountIn, SwapParams[] calldata poolsData) external
+```
+
+```solidity
+    struct SwapParams {
+        address token;
+        uint24 fee;
+    }
+```
+
+Swaps the specified amount of tokens for `POOLX DelayVault NFTs`. Users provide the amount of tokens to swap and an array of `SwapParams` specifying the token swap details. The contract concatenates the provided path array with a predefined swap path, where the last path element is always from the `paired token` to the `ERC-20` token `(USDT -> POOLX)`. `SwapParams` can be empty, which means that the exchange is being used in one path.
+
+[tx example](https://testnet.bscscan.com/tx/0x7fda3a05917d6449a10b93a215d4781afdbafb8498f70a67dfd107c5334e206d)
+
+### Utility
+
+```solidity
+function getBytes(SwapParams[] calldata data) public view returns (bytes memory result)
+```
+
+Utility function that returns paths in bytes.
+
+```solidity
+function concatenateBytes(bytes memory _bytes1, bytes memory _bytes2) public pure returns (bytes memory result)
+```
+
+Utility function to concatenate two byte arrays.
+
+### Admin
+
+```solidity
+function pause() external onlyOwner
+```
+
+Pauses the contract, preventing further token swaps.
+
+```solidity
+function unpause() external onlyOwner
+```
+
+Unpauses the contract, allowing token swaps to resume.
+
+```solidity
+function withdrawFee() external onlyOwner
+```
+
+Allows the contract owner to withdraw accumulated fees in the form of tokens.
+
+```solidity
+function calcMinusFee(uint256 amount) public view returns (uint256 leftAmount)
+```
+
+Calculates the remaining amount after deducting the project owner fee from the given amount.
+
+```solidity
+function setProjectOwnerFee(uint24 fee) external onlyOwner
+```
+
+Allows the contract owner to set the project owner fee, ensuring it is a valid percentage. Where 10000 is 100%.
+
 ## Contracts UML
 
 ![classDiagram](https://github.com/The-Poolz/LockDealNFT.DelayVaultProvider/assets/68740472/1610209b-61ce-41ac-9485-cb7d92e49235)
