@@ -18,7 +18,7 @@ describe("TokenNFTConnector", function () {
     const poolFee = 3000
 
     before(async () => {
-        ;[owner] = await ethers.getSigners()
+        [owner] = await ethers.getSigners()
         const TokenToSwap = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
         const Token = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
         token = await Token.deployed()

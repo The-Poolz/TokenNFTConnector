@@ -42,6 +42,16 @@ npx hardhat test
 npx hardhat coverage
 ```
 
+**Deploy:**
+
+```console
+truffle dashboard
+```
+
+```console
+npx hardhat run ./scripts/deploy.ts --network truffleDashboard
+```
+
 ## How it works?
 
 The **TokenNFTConnector** contract operates in the following steps:
@@ -89,12 +99,6 @@ function getBytes(SwapParams[] calldata data) public view returns (bytes memory 
 ```
 
 Utility function that returns paths in bytes.
-
-```solidity
-function concatenateBytes(bytes memory _bytes1, bytes memory _bytes2) public pure returns (bytes memory result)
-```
-
-Utility function to concatenate two byte arrays.
 
 ### Admin
 
