@@ -42,6 +42,16 @@ npx hardhat test
 npx hardhat coverage
 ```
 
+**Deploy:**
+
+```cosnole
+truffle dashboard
+```
+
+```console
+npx hardhat run ./scripts/deploy.ts --network truffleDashboard
+```
+
 ## How it works?
 
 The **TokenNFTConnector** contract operates in the following steps:

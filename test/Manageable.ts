@@ -13,13 +13,12 @@ describe("Connector Manageable", function () {
     let user: SignerWithAddress
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
-    let pairData: TokenNFTConnector.SwapParamsStruct[]
     const amount = ethers.utils.parseUnits("100", 18)
     const projectOwnerFee = 1000
     const poolFee = `3000`
 
     before(async () => {
-        ;[owner, user] = await ethers.getSigners()
+        [owner, user] = await ethers.getSigners()
         const Token = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
         token = await Token.deployed()
         const SwapRouter = (await ethers.deployContract("SwapperMock", [token.address])) as SwapperMock
@@ -31,7 +30,6 @@ describe("Connector Manageable", function () {
         await token.transfer(user.address, amount)
         await tokenToSwap.transfer(user.address, amount)
         await token.transfer(swapRouter.address, amount.mul(99))
-        pairData = [{ token: tokenToSwap.address, fee: poolFee }]
     })
 
     beforeEach(async () => {

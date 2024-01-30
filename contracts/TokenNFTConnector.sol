@@ -62,7 +62,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
             })
         );
         amountOut = calcMinusFee(amountOut);
-        
+
         token.approve(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
@@ -77,22 +77,15 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
                 data[i].token != address(0),
                 "TokenNFTConnector: ZERO_ADDRESS"
             );
-            result = concatenateBytes(
+            result = abi.encodePacked(
                 result,
                 abi.encodePacked(data[i].token, data[i].fee)
             );
         }
         // add last path element
-        result = concatenateBytes(
+        result = abi.encodePacked(
             result,
             abi.encodePacked(address(pairToken), poolFee, address(token))
         );
-    }
-
-    function concatenateBytes(
-        bytes memory _bytes1,
-        bytes memory _bytes2
-    ) public pure returns (bytes memory result) {
-        result = abi.encodePacked(_bytes1, _bytes2);
     }
 }
