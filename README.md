@@ -100,12 +100,6 @@ function getBytes(SwapParams[] calldata data) public view returns (bytes memory 
 
 Utility function that returns paths in bytes.
 
-```solidity
-function concatenateBytes(bytes memory _bytes1, bytes memory _bytes2) public pure returns (bytes memory result)
-```
-
-Utility function to concatenate two byte arrays.
-
 ### Admin
 
 ```solidity
