@@ -44,7 +44,7 @@ npx hardhat coverage
 
 **Deploy:**
 
-```cosnole
+```console
 truffle dashboard
 ```
 
