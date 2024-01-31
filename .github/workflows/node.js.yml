@@ -9,24 +9,14 @@ jobs:
         if: github.event_name == 'pull_request' # This line ensures that this job only runs on pull requests
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: "18.15.0"
-
-            - name: Restore cache
-              id: restore-cache
-              uses: actions/cache/restore@v3
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-yarn-${{ hashFiles('**/package.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-yarn-
+                  node-version: "20.9.0"
 
             - name: Install HardHat
-              if: steps.restore-cache.outputs.cache-hit != 'true'
               run: npm i hardhat
 
             - name: Run tests
@@ -37,24 +27,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: "18.15.0"
-
-            - name: Restore cache
-              id: restore-cache
-              uses: actions/cache/restore@v3
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-yarn-${{ hashFiles('**/package.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-yarn-
+                  node-version: "20.9.0"
 
             - name: Install HardHat
-              if: steps.restore-cache.outputs.cache-hit != 'true'
               run: npm i hardhat
 
             - name: Run tests and generate coverage
