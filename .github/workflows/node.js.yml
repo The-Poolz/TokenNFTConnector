@@ -18,7 +18,6 @@ jobs:
                   node-version: "20.9.0"
 
             - name: Install dependencies
-              if: steps.cache-keys.outputs.cache-hit != 'true'
               run: npm install
 
             - name: Save node modules
