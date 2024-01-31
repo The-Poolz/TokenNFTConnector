@@ -24,14 +24,14 @@
   },
   "homepage": "https://github.com/The-Poolz/TokenNFTConnector#readme",
   "devDependencies": {
-    "@openzeppelin/contracts": "^4.9.3",
-    "@truffle/dashboard-hardhat-plugin": "^0.2.15",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "@nomiclabs/hardhat-ethers": "^2.2.1",
     "@nomiclabs/hardhat-etherscan": "^3.1.2",
-    "hardhat": "^2.19.4",
+    "@openzeppelin/contracts": "^4.9.3",
+    "@truffle/dashboard-hardhat-plugin": "^0.2.15",
+    "hardhat": "^2.19.5",
     "solidity-coverage": "^0.8.5"
   },
   "dependencies": {
