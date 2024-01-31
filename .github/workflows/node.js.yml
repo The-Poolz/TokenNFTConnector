@@ -21,9 +21,6 @@ jobs:
               if: steps.cache-keys.outputs.cache-hit != 'true'
               run: npm install
 
-            - name: Install HardHat
-              run: npm i hardhat
-
             - name: Save node modules
               uses: actions/upload-artifact@v4
               with:
@@ -44,6 +41,9 @@ jobs:
                   name: node-modules
                   path: node_modules
 
+            - name: Install HardHat
+              run: npm i hardhat
+
             - name: Run tests
               run: npx hardhat test
 
@@ -59,6 +59,9 @@ jobs:
               with:
                   name: node-modules
                   path: node_modules
+                  
+            - name: Install HardHat
+              run: npm i hardhat
 
             - name: Run tests and generate coverage
               run: npx hardhat coverage
