@@ -17,7 +17,6 @@ jobs:
                   node-version: "20.9.0"
 
             - name: Install HardHat
-              if: steps.restore-cache.outputs.cache-hit != 'true'
               run: npm i hardhat
 
             - name: Run tests
@@ -36,7 +35,6 @@ jobs:
                   node-version: "20.9.0"
 
             - name: Install HardHat
-              if: steps.restore-cache.outputs.cache-hit != 'true'
               run: npm i hardhat
 
             - name: Run tests and generate coverage
