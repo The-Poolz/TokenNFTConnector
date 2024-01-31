@@ -14,7 +14,7 @@ describe("Connector Manageable", function () {
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
     const amount = ethers.utils.parseUnits("100", 18)
-    const projectOwnerFee = 1000
+    const projectOwnerFee = ethers.utils.parseUnits("1", 17)
     const poolFee = `3000`
 
     before(async () => {
@@ -81,7 +81,7 @@ describe("Connector Manageable", function () {
     })
 
     it("owner can't set invalid fee amount", async () => {
-        const invalidFee = 10001
+        const invalidFee = ethers.utils.parseUnits("1", 18)
         await expect(tokenNFTConnector.connect(owner).setProjectOwnerFee(invalidFee)).to.be.revertedWith(
             "ConnectorManageable: invalid fee"
         )
@@ -89,7 +89,8 @@ describe("Connector Manageable", function () {
 
     it("should return the amount after deducting fee", async () => {
         await tokenNFTConnector.connect(owner).setProjectOwnerFee(projectOwnerFee)
-        expect(await tokenNFTConnector.connect(owner).calcMinusFee(projectOwnerFee)).to.equal(900)
+        const expectedAmount = amount.sub(amount.div(10))
+        expect(await tokenNFTConnector.connect(owner).calcMinusFee(amount)).to.equal(expectedAmount)
     })
 
     it("withdraw fee", async () => {
