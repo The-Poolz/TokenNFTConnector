@@ -42,15 +42,12 @@ jobs:
           node-version: "20.9.0"
 
       - name: Cache node modules
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
             ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Install HardHa
-        run: npm i hardhat
 
       - name: Run tests
         run: npx hardhat test
@@ -68,7 +65,7 @@ jobs:
           node-version: "20.9.0"
 
       - name: Cache node modules
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
