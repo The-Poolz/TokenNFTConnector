@@ -9,16 +9,16 @@ jobs:
         if: github.event_name == 'pull_request' # This line ensures that this job only runs on pull requests
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                   node-version: "20.9.0"
 
             - name: Restore cache
               id: restore-cache
-              uses: actions/cache/restore@v3
+              uses: actions/cache/restore@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-yarn-${{ hashFiles('**/package.json') }}
@@ -37,16 +37,16 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                   node-version: "20.9.0"
 
             - name: Restore cache
               id: restore-cache
-              uses: actions/cache/restore@v3
+              uses: actions/cache/restore@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-yarn-${{ hashFiles('**/package.json') }}
