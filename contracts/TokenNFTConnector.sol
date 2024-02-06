@@ -25,18 +25,14 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuardUpgradeable {
         uint24 _poolFee,
         uint256 _projectOwnerFee
     ) external initializer {
-        __Ownable_init(msg.sender);
-        __Pausable_init();
+        __Manageable_init(_token, _projectOwnerFee);
         __ReentrancyGuard_init();
-        require(address(_token) != address(0) &&
-            address(_swapRouter) != address(0) &&
+        require(address(_swapRouter) != address(0) &&
                 address(_delayVaultProvider) != address(0) &&
                 address(_pairToken) != address(0),
             "TokenNFTConnector: ZERO_ADDRESS"
         );
         require(token != _pairToken, "TokenNFTConnector: SAME_TOKENS_IN_PAIR");
-        token = _token;
-        projectOwnerFee = _projectOwnerFee;
         swapRouter = _swapRouter;
         delayVaultProvider = _delayVaultProvider;
         pairToken = _pairToken;

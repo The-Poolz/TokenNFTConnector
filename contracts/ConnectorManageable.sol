@@ -10,6 +10,14 @@ contract ConnectorManageable is Initializable, OwnableUpgradeable, PausableUpgra
     IERC20 public token;
     uint256 public projectOwnerFee;
     uint256 public constant MAX_FEE = 1e18; // 100%
+    
+    function __Manageable_init(IERC20 _token, uint256 _projectOwnerFee) public onlyInitializing {
+        __Ownable_init(msg.sender);
+        __Pausable_init();
+        require(address(_token) != address(0), "ConnectorManageable: ZERO_ADDRESS");
+        token = _token;
+        projectOwnerFee = _projectOwnerFee;
+    }
 
     function setProjectOwnerFee(uint256 fee) external onlyOwner {
         require(fee < MAX_FEE, "ConnectorManageable: invalid fee");
