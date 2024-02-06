@@ -1,0 +1,602 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xAED85ce5233CeD22124e667E7FaDCA8c869dCdDE",
+      "txHash": "0x5b27a2229f1d59ef7d981b9134cf081391bda8cdb8a99a3f6a9737786ed3bc54",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9aC1e105A0Be7EFf2de89195a1E5ee478f5753e5",
+      "txHash": "0xe6c18e58457b7e988138c308b0561ab438e8429c12a182aea67e523d0dc9de0d",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "d8541e41bf28dc74ffb732283eb3bbd507e02a1bd815938d2424d4d39a0d65e8": {
+      "address": "0xA682bA905880ad82A2AcDD4f55af1f7bbedAa3eb",
+      "txHash": "0xedbb92d14d75b90f115264e74a7d8538c52bae59f1ab3502a093c94e66c80ce4",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IERC20)1529",
+            "contract": "ConnectorManageable",
+            "src": "contracts\\ConnectorManageable.sol:10"
+          },
+          {
+            "label": "projectOwnerFee",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ConnectorManageable",
+            "src": "contracts\\ConnectorManageable.sol:11"
+          },
+          {
+            "label": "swapRouter",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(ISwapRouter)2063",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:10"
+          },
+          {
+            "label": "delayVaultProvider",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IDelayVaultProvider)2042",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:11"
+          },
+          {
+            "label": "pairToken",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_contract(IERC20)1529",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:12"
+          },
+          {
+            "label": "poolFee",
+            "offset": 20,
+            "slot": "4",
+            "type": "t_uint24",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)136_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)197_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IDelayVaultProvider)2042": {
+            "label": "contract IDelayVaultProvider",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IERC20)1529": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ISwapRouter)2063": {
+            "label": "contract ISwapRouter",
+            "numberOfBytes": "20"
+          },
+          "t_uint24": {
+            "label": "uint24",
+            "numberOfBytes": "3"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "e267f6dbd4925f655607c7088544ce0f6ba5084172d9ebc18c245bc5f6dc340b": {
+      "address": "0x51e03F14d5dd31E40424ca8bcDDB53cDB4b28bF1",
+      "txHash": "0x04151e176009f3e759f73273eeaa077769ed64a4c722601f20c7036a9ea90c9c",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IERC20)877",
+            "contract": "ConnectorManageable",
+            "src": "contracts\\ConnectorManageable.sol:10"
+          },
+          {
+            "label": "projectOwnerFee",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ConnectorManageable",
+            "src": "contracts\\ConnectorManageable.sol:11"
+          },
+          {
+            "label": "swapRouter",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(ISwapRouter)1373",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:10"
+          },
+          {
+            "label": "delayVaultProvider",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IDelayVaultProvider)1352",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:11"
+          },
+          {
+            "label": "pairToken",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_contract(IERC20)877",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:12"
+          },
+          {
+            "label": "poolFee",
+            "offset": 20,
+            "slot": "4",
+            "type": "t_uint24",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)136_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)197_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IDelayVaultProvider)1352": {
+            "label": "contract IDelayVaultProvider",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IERC20)877": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ISwapRouter)1373": {
+            "label": "contract ISwapRouter",
+            "numberOfBytes": "20"
+          },
+          "t_uint24": {
+            "label": "uint24",
+            "numberOfBytes": "3"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "264ff6cb97a66234a83e6cea7a5c427ddc0105c87e3117c6d521776210e153c5": {
+      "address": "0x9dF6664f7B7835138957511be47C20539512A58E",
+      "txHash": "0xc4ce76324fc83e836f310661c569debb220078204a68179ec38eb96d3698cca7",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IERC20)877",
+            "contract": "ConnectorManageable",
+            "src": "contracts\\ConnectorManageable.sol:10"
+          },
+          {
+            "label": "projectOwnerFee",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ConnectorManageable",
+            "src": "contracts\\ConnectorManageable.sol:11"
+          },
+          {
+            "label": "swapRouter",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(ISwapRouter)1352",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:10"
+          },
+          {
+            "label": "delayVaultProvider",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IDelayVaultProvider)1331",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:11"
+          },
+          {
+            "label": "pairToken",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_contract(IERC20)877",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:12"
+          },
+          {
+            "label": "poolFee",
+            "offset": 20,
+            "slot": "4",
+            "type": "t_uint24",
+            "contract": "TokenNFTConnector",
+            "src": "contracts\\TokenNFTConnector.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)136_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)197_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IDelayVaultProvider)1331": {
+            "label": "contract IDelayVaultProvider",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IERC20)877": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ISwapRouter)1352": {
+            "label": "contract ISwapRouter",
+            "numberOfBytes": "20"
+          },
+          "t_uint24": {
+            "label": "uint24",
+            "numberOfBytes": "3"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

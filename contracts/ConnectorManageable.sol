@@ -2,22 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract ConnectorManageable is Ownable, Pausable {
-    IERC20 public immutable token;
+contract ConnectorManageable is Initializable, OwnableUpgradeable, PausableUpgradeable {
+    IERC20 public token;
     uint256 public projectOwnerFee;
     uint256 public constant MAX_FEE = 1e18; // 100%
-
-    constructor(IERC20 _token, uint256 _projectOwnerFee) {
-        require(
-            address(_token) != address(0),
-            "ConnectorManageable: token is zero address"
-        );
-        token = _token;
-        projectOwnerFee = _projectOwnerFee;
-    }
 
     function setProjectOwnerFee(uint256 fee) external onlyOwner {
         require(fee < MAX_FEE, "ConnectorManageable: invalid fee");

@@ -1,6 +1,7 @@
 import "@nomicfoundation/hardhat-toolbox"
 import "@truffle/dashboard-hardhat-plugin"
 import { HardhatUserConfig } from "hardhat/config"
+import '@openzeppelin/hardhat-upgrades';
 import "solidity-coverage"
 
 const config: HardhatUserConfig = {
