@@ -6,9 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract SwapperMock is ISwapRouter {
     IERC20 public token;
+    uint256 public projectOwnerFee;
 
-    constructor(address _token) {
+    constructor(address _token, uint256 _projectOwnerFee) {
         token = IERC20(_token);
+        projectOwnerFee = _projectOwnerFee;
     }
 
     function exactInput(
@@ -24,7 +26,7 @@ contract SwapperMock is ISwapRouter {
         token.transfer(msg.sender, fee);
     }
 
-    function calcFee(uint256 amount) public pure returns (uint256 leftAmount) {
-        leftAmount = (amount * 1000) / 10000;
+    function calcFee(uint256 amount) public view returns (uint256 fee) {
+        fee = (amount * projectOwnerFee) / 1e18;
     }
 }

@@ -1,9 +1,10 @@
 import { SwapperMock, DelayMock } from "../typechain-types"
-import { ERC20Token } from "../typechain-types/@poolzfinance/poolz-helper-v2/contracts/token/ERC20Token"
+import { ERC20Token } from "../typechain-types/"
 import { TokenNFTConnector } from "../typechain-types/contracts/TokenNFTConnector"
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
+import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import { expect } from "chai"
-import { ethers } from "hardhat"
+import { parseUnits } from "ethers"
+import { ethers, upgrades } from "hardhat"
 
 describe("Connector Manageable", function () {
     let tokenNFTConnector: TokenNFTConnector
@@ -13,41 +14,46 @@ describe("Connector Manageable", function () {
     let user: SignerWithAddress
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
-    const amount = ethers.utils.parseUnits("100", 18)
-    const projectOwnerFee = ethers.utils.parseUnits("1", 17)
+    const amount = parseUnits("100", 18)
+    const projectOwnerFee = parseUnits("1", 17)
     const poolFee = `3000`
 
     before(async () => {
         [owner, user] = await ethers.getSigners()
-        const Token = (await ethers.deployContract("ERC20Token", ["TEST", "test"])) as ERC20Token
-        token = await Token.deployed()
-        const SwapRouter = (await ethers.deployContract("SwapperMock", [token.address])) as SwapperMock
-        const PairToken = (await ethers.deployContract("ERC20Token", ["USDT", "usdt"])) as ERC20Token
-        tokenToSwap = await PairToken.deployed()
-        const DelayVaultProvider = (await ethers.deployContract("DelayMock")) as DelayMock
-        swapRouter = await SwapRouter.deployed()
-        delayVaultProvider = await DelayVaultProvider.deployed()
+        const Token = await ethers.getContractFactory("ERC20Token")
+        token = await Token.deploy("TEST", "test")
+        const SwapRouter = await ethers.getContractFactory("SwapperMock")
+        swapRouter = await SwapRouter.deploy(await token.getAddress(), projectOwnerFee)
+        const PairToken = await ethers.getContractFactory("ERC20Token")
+        tokenToSwap = await PairToken.deploy("USDT", "usdt")
+        const DelayVaultProvider = await ethers.getContractFactory("DelayMock")
+        delayVaultProvider = await DelayVaultProvider.deploy()
         await token.transfer(user.address, amount)
         await tokenToSwap.transfer(user.address, amount)
-        await token.transfer(swapRouter.address, amount.mul(99))
+        const transferAmount = parseUnits("10000", 18)
+        await token.transfer(await swapRouter.getAddress(), transferAmount)
     })
 
     beforeEach(async () => {
-        tokenNFTConnector = (await ethers.deployContract("TokenNFTConnector", [
-            token.address,
-            tokenToSwap.address,
-            swapRouter.address,
-            delayVaultProvider.address,
+        const transferAmount = parseUnits("100", 18)
+        const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
+        const deployedTokenNFTConnector = await upgrades.deployProxy(TokenNFTConnectorFactory, [
+            await token.getAddress(),
+            await tokenToSwap.getAddress(),
+            await swapRouter.getAddress(),
+            await delayVaultProvider.getAddress(),
             poolFee,
             `0`,
-        ])) as TokenNFTConnector
-        await token.approve(tokenNFTConnector.address, amount.mul(100))
-        await tokenToSwap.connect(user).approve(tokenNFTConnector.address, amount.mul(100))
+        ])
+        tokenNFTConnector = deployedTokenNFTConnector as unknown as TokenNFTConnector
+        await token.approve(await tokenNFTConnector.getAddress(), transferAmount)
+        await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), transferAmount)
     })
 
     it("should set owner address after creation", async () => {
         const ownerAddress = await tokenNFTConnector.owner()
-        expect(ownerAddress).to.equal(await ethers.provider.getSigner(0).getAddress())
+        const expectedSigner = await ethers.provider.getSigner(0)
+        expect(ownerAddress).to.equal(await expectedSigner.getAddress())
     })
 
     it("should pause contract", async () => {
@@ -68,29 +74,28 @@ describe("Connector Manageable", function () {
     })
 
     it("should revert if the fee balance is empty", async () => {
-        await expect(tokenNFTConnector.connect(owner).withdrawFee()).to.be.revertedWith(
+        await expect(tokenNFTConnector.connect(owner).withdrawFee()).to.be.rejectedWith(
             "ConnectorManageable: balance is zero"
         )
     })
 
     it("should pause createLeaderboard", async () => {
         await tokenNFTConnector.connect(owner).pause()
-        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount, [])).to.be.revertedWith(
-            "Pausable: paused"
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount, [])).to.be.rejectedWith(
+            "EnforcedPause()"
         )
     })
 
     it("owner can't set invalid fee amount", async () => {
-        const invalidFee = ethers.utils.parseUnits("1", 18)
-        await expect(tokenNFTConnector.connect(owner).setProjectOwnerFee(invalidFee)).to.be.revertedWith(
+        const invalidFee = parseUnits("1", 18)
+        await expect(tokenNFTConnector.connect(owner).setProjectOwnerFee(invalidFee)).to.be.rejectedWith(
             "ConnectorManageable: invalid fee"
         )
     })
 
     it("should return the amount after deducting fee", async () => {
         await tokenNFTConnector.connect(owner).setProjectOwnerFee(projectOwnerFee)
-        const expectedAmount = amount.sub(amount.div(10))
-        expect(await tokenNFTConnector.connect(owner).calcMinusFee(amount)).to.equal(expectedAmount)
+        expect(await tokenNFTConnector.connect(owner).calcMinusFee(amount)).to.equal(parseUnits("90", 18))
     })
 
     it("withdraw fee", async () => {
@@ -101,6 +106,7 @@ describe("Connector Manageable", function () {
         await tokenNFTConnector.connect(owner).withdrawFee()
 
         const afterBalance = await token.balanceOf(owner.address)
-        expect(afterBalance).to.equal(beforeBalance.add(amount.mul(2).div(10)))
+        // swap ratio is 1:2, 10% fee
+        expect(afterBalance).to.equal(BigInt(beforeBalance) + BigInt(parseUnits("20", 18)))
     })
 })

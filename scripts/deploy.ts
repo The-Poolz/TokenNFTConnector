@@ -16,7 +16,7 @@ async function main() {
     const proxy = await upgrades.deployProxy(
         tokenNFTConnector,
         [POOLXTestnet, USDTTestnet, delayVaultProviderTestnet, smartRouterTestnet, poolFee, 0],
-        { initializer: "initialize" }
+        { initializer: "initialize", kind: "uups" }
     )
     await proxy.waitForDeployment()
     console.log("Proxy deployed to:", await proxy.getAddress())
