@@ -1,7 +1,8 @@
 import "@nomicfoundation/hardhat-toolbox"
 import "@truffle/dashboard-hardhat-plugin"
 import { HardhatUserConfig } from "hardhat/config"
-import '@openzeppelin/hardhat-upgrades';
+import "@nomicfoundation/hardhat-verify"
+import "@openzeppelin/hardhat-upgrades"
 import "solidity-coverage"
 
 const config: HardhatUserConfig = {
@@ -24,6 +25,28 @@ const config: HardhatUserConfig = {
         hardhat: {
             blockGasLimit: 130_000_000,
         },
+        bscTestnet: {
+            url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+            chainId: 97,
+            //accounts: [ process.env.PRIVATE_KEY || ""],
+        },
+        bsc: {
+            url: "https://bsc-dataseed.binance.org/",
+            chainId: 56,
+            //accounts: [ process.env.PRIVATE_KEY || ""],
+        },
+    },
+    etherscan: {
+        apiKey: {
+            mainnet: process.env.ETHERSCAN_API_KEY || "",
+            bsc: process.env.BSCSCAN_API_KEY || "",
+            bscTestnet: process.env.BSCSCAN_API_KEY || "",
+        },
+    },
+    sourcify: {
+        // Disabled by default
+        // Doesn't need an API key
+        enabled: true,
     },
 }
 
