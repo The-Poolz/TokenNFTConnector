@@ -29,14 +29,18 @@ describe("TokenNFTConnector", function () {
         const DelayVaultProvider = await ethers.getContractFactory("DelayMock")
         delayVaultProvider = await DelayVaultProvider.deploy()
         const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
-        const deployedTokenNFTConnector = await upgrades.deployProxy(TokenNFTConnectorFactory, [
-            await token.getAddress(),
-            await tokenToSwap.getAddress(),
-            await swapRouter.getAddress(),
-            await delayVaultProvider.getAddress(),
-            poolFee,
-            `0`,
-        ])
+        const deployedTokenNFTConnector = await upgrades.deployProxy(
+            TokenNFTConnectorFactory,
+            [
+                await token.getAddress(),
+                await tokenToSwap.getAddress(),
+                await swapRouter.getAddress(),
+                await delayVaultProvider.getAddress(),
+                poolFee,
+                `0`,
+            ],
+            { initializer: "initialize", kind: "uups" }
+        )
         tokenNFTConnector = deployedTokenNFTConnector as unknown as TokenNFTConnector
         // approve token to swap
         await tokenToSwap.approve(tokenNFTConnector.getAddress(), parseUnits("10000", 18))
