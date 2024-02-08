@@ -1,32 +1,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./interfaces/IDelayVaultProvider.sol";
 import "./interfaces/ISwapRouter.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./ConnectorManageable.sol";
 
-contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
-    ISwapRouter public immutable swapRouter;
-    IDelayVaultProvider public immutable delayVaultProvider;
-    IERC20 public immutable pairToken;
-    uint24 private immutable poolFee; // last pair fee
+contract TokenNFTConnector is ConnectorManageable, ReentrancyGuardUpgradeable {
+    ISwapRouter public swapRouter;
+    IDelayVaultProvider public delayVaultProvider;
+    IERC20 public pairToken;
+    uint24 private poolFee; // last pair fee
 
     struct SwapParams {
         address token;
         uint24 fee;
     }
 
-    constructor(
+    function initialize(
         IERC20 _token,
         IERC20 _pairToken,
         ISwapRouter _swapRouter,
         IDelayVaultProvider _delayVaultProvider,
         uint24 _poolFee,
         uint256 _projectOwnerFee
-    ) ConnectorManageable(_token, _projectOwnerFee) {
-        require(
-            address(_swapRouter) != address(0) &&
+    ) external initializer {
+        __Manageable_init(_token, _projectOwnerFee);
+        __ReentrancyGuard_init();
+        require(address(_swapRouter) != address(0) &&
                 address(_delayVaultProvider) != address(0) &&
                 address(_pairToken) != address(0),
             "TokenNFTConnector: ZERO_ADDRESS"

@@ -1,4 +1,4 @@
-import { ethers } from "hardhat"
+import { ethers, upgrades } from "hardhat"
 
 async function main() {
     //const POOLX = "0xbAeA9aBA1454DF334943951d51116aE342eAB255"
@@ -12,15 +12,14 @@ async function main() {
     const smartRouterTestnet = "0x9a489505a00cE272eAa5e07Dba6491314CaE3796"
     const poolFee = "100"
 
-    const tokenNFTConnector = await ethers.deployContract("TokenNFTConnector", [
-        POOLXTestnet,
-        USDTTestnet,
-        smartRouterTestnet,
-        delayVaultProviderTestnet,
-        poolFee,
-        0,
-    ])
-    console.log("TokenNFTConnector deployed to:", tokenNFTConnector.address)
+    const tokenNFTConnector = await ethers.getContractFactory("TokenNFTConnector")
+    const proxy = await upgrades.deployProxy(
+        tokenNFTConnector,
+        [POOLXTestnet, USDTTestnet, delayVaultProviderTestnet, smartRouterTestnet, poolFee, 0],
+        { initializer: "initialize", kind: "uups" }
+    )
+    await proxy.waitForDeployment()
+    console.log("Proxy deployed to:", await proxy.getAddress())
 }
 
 main().catch((error) => {
