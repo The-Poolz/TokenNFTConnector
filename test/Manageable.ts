@@ -4,7 +4,7 @@ import { TokenNFTConnector } from "../typechain-types/contracts/TokenNFTConnecto
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import { expect } from "chai"
 import { parseUnits } from "ethers"
-import { ethers, upgrades } from "hardhat"
+import { ethers } from "hardhat"
 
 describe("Connector Manageable", function () {
     let tokenNFTConnector: TokenNFTConnector
@@ -37,19 +37,14 @@ describe("Connector Manageable", function () {
     beforeEach(async () => {
         const transferAmount = parseUnits("100", 18)
         const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
-        const deployedTokenNFTConnector = await upgrades.deployProxy(
-            TokenNFTConnectorFactory,
-            [
-                await token.getAddress(),
-                await tokenToSwap.getAddress(),
-                await swapRouter.getAddress(),
-                await delayVaultProvider.getAddress(),
-                poolFee,
-                `0`,
-            ],
-            { initializer: "initialize", kind: "uups" }
-        )
-        tokenNFTConnector = deployedTokenNFTConnector as unknown as TokenNFTConnector
+        tokenNFTConnector = await TokenNFTConnectorFactory.deploy(
+            await token.getAddress(),
+            await tokenToSwap.getAddress(),
+            await swapRouter.getAddress(),
+            await delayVaultProvider.getAddress(),
+            poolFee,
+            `0`
+        ) as TokenNFTConnector
         await token.approve(await tokenNFTConnector.getAddress(), transferAmount)
         await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), transferAmount)
     })
@@ -112,29 +107,5 @@ describe("Connector Manageable", function () {
         const afterBalance = await token.balanceOf(owner.address)
         // swap ratio is 1:2, 10% fee
         expect(afterBalance).to.equal(BigInt(beforeBalance) + BigInt(parseUnits("20", 18)))
-    })
-
-    it("should be preserved proxy data after implementation changes", async () => {
-        const TokenNFTConnector = await ethers.getContractFactory("TokenNFTConnector")
-        const NewTokenNFTConnector = await ethers.getContractFactory("TokenNFTConnector")
-        // Deploy the proxy contract using the initial implementation
-        const proxy = await upgrades.deployProxy(
-            TokenNFTConnector,
-            [
-                await token.getAddress(),
-                await tokenToSwap.getAddress(),
-                await swapRouter.getAddress(),
-                await delayVaultProvider.getAddress(),
-                poolFee,
-                `0`,
-            ],
-            { initializer: "initialize", kind: "uups" }
-        )
-        // Upgrade the proxy to the new implementation
-        const upgraded = await upgrades.upgradeProxy(await proxy.getAddress(), NewTokenNFTConnector)
-        // Ensure that the data was migrated
-        expect(await upgraded.token()).to.equal(await token.getAddress())
-        expect(await upgraded.pairToken()).to.equal(await tokenToSwap.getAddress())
-        expect(await upgraded.swapRouter()).to.equal(await swapRouter.getAddress())
     })
 })

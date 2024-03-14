@@ -4,7 +4,7 @@ import { TokenNFTConnector } from "../typechain-types/contracts/TokenNFTConnecto
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import { expect } from "chai"
 import { parseUnits } from "ethers"
-import { ethers, upgrades } from "hardhat"
+import { ethers } from "hardhat"
 
 describe("TokenNFTConnector", function () {
     let tokenNFTConnector: TokenNFTConnector
@@ -29,19 +29,14 @@ describe("TokenNFTConnector", function () {
         const DelayVaultProvider = await ethers.getContractFactory("DelayMock")
         delayVaultProvider = await DelayVaultProvider.deploy()
         const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
-        const deployedTokenNFTConnector = await upgrades.deployProxy(
-            TokenNFTConnectorFactory,
-            [
-                await token.getAddress(),
-                await tokenToSwap.getAddress(),
-                await swapRouter.getAddress(),
-                await delayVaultProvider.getAddress(),
-                poolFee,
-                `0`,
-            ],
-            { initializer: "initialize", kind: "uups" }
-        )
-        tokenNFTConnector = deployedTokenNFTConnector as unknown as TokenNFTConnector
+        tokenNFTConnector = await TokenNFTConnectorFactory.deploy(
+            await token.getAddress(),
+            await tokenToSwap.getAddress(),
+            await swapRouter.getAddress(),
+            await delayVaultProvider.getAddress(),
+            poolFee,
+            `0`
+        ) as TokenNFTConnector
         // approve token to swap
         await tokenToSwap.approve(tokenNFTConnector.getAddress(), parseUnits("10000", 18))
         pairData = [{ token: await tokenToSwap.getAddress(), fee: poolFee }]
