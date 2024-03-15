@@ -82,11 +82,11 @@ describe("TokenNFTConnector", function () {
         )
     })
 
-    it("should return false if the level has increased", async () => {
+    it("should return true if the level has increased", async () => {
         expect(await tokenNFTConnector.connect(owner).checkIncreaseTier(amount * 10000n)).to.equal(true)
     })
 
-    it("should return true if the level doesn't increase", async () => {
+    it("should return false if the level doesn't increase", async () => {
         expect(await tokenNFTConnector.connect(owner).checkIncreaseTier(amount)).to.equal(false)
     })
 }) 
