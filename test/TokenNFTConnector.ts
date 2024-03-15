@@ -13,8 +13,10 @@ describe("TokenNFTConnector", function () {
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
     let owner: SignerWithAddress
-    const amount = parseUnits("100", 18)
+    const amount = parseUnits("10", 18)
     let pairData: TokenNFTConnector.SwapParamsStruct[]
+    const contractName = "TokenNFTConnector"
+    const contractVersion = "1.2.0"
     const projectOwnerFee = 1000
     const poolFee = 3000
 
@@ -28,7 +30,7 @@ describe("TokenNFTConnector", function () {
         tokenToSwap = await PairToken.deploy("USDT", "usdt")
         const DelayVaultProvider = await ethers.getContractFactory("DelayMock")
         delayVaultProvider = await DelayVaultProvider.deploy()
-        const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
+        const TokenNFTConnectorFactory = await ethers.getContractFactory(contractName)
         tokenNFTConnector = await TokenNFTConnectorFactory.deploy(
             await token.getAddress(),
             await tokenToSwap.getAddress(),
@@ -40,7 +42,15 @@ describe("TokenNFTConnector", function () {
         // approve token to swap
         await tokenToSwap.approve(tokenNFTConnector.getAddress(), parseUnits("10000", 18))
         pairData = [{ token: await tokenToSwap.getAddress(), fee: poolFee }]
-        await token.transfer(await swapRouter.getAddress(), parseUnits("10000", 18))
+        await token.transfer(await swapRouter.getAddress(), parseUnits("100000", 18))
+    })
+
+    it("should return name of the contract", async () => {
+        expect(await tokenNFTConnector.name()).to.equal(contractName)
+    })
+    
+    it("should return version of the contract", async () => {
+        expect(await tokenNFTConnector.version()).to.equal(contractVersion)
     })
 
     it("should increase delay NFT counter", async () => {
@@ -64,4 +74,11 @@ describe("TokenNFTConnector", function () {
             "TokenNFTConnector: no allowance"
         )
     })
-})
+
+    it("should revert invalid tier swap", async () => {
+        await tokenToSwap.connect(owner).approve(await tokenNFTConnector.getAddress(), amount * 10000n)
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount * 10000n, pairData)).to.be.revertedWith(
+            "TokenNFTConnector: please update your tier level"
+        )
+    })
+}) 

@@ -2,11 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@poolzfinance/poolz-helper-v2/contracts/Nameable.sol";
 import "./interfaces/IDelayVaultProvider.sol";
 import "./interfaces/ISwapRouter.sol";
 import "./ConnectorManageable.sol";
 
-contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
+contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
     ISwapRouter public swapRouter;
     IDelayVaultProvider public delayVaultProvider;
     IERC20 public pairToken;
@@ -24,7 +25,10 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
         IDelayVaultProvider _delayVaultProvider,
         uint24 _poolFee,
         uint256 _projectOwnerFee
-    ) ConnectorManageable(_token, _projectOwnerFee) {
+    )
+        ConnectorManageable(_token, _projectOwnerFee)
+        Nameable("TokenNFTConnector", "1.2.0")
+    {
         require(
             address(_swapRouter) != address(0) &&
                 address(_delayVaultProvider) != address(0) &&
@@ -62,7 +66,10 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
             })
         );
         amountOut = calcMinusFee(amountOut);
-
+        require(
+            _checkCurrentTier(amountOut),
+            "TokenNFTConnector: please update your tier level"
+        );
         token.approve(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
@@ -87,5 +94,12 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard {
             result,
             abi.encodePacked(address(pairToken), poolFee, address(token))
         );
+    }
+
+    function _checkCurrentTier(
+        uint256 additionalAmount
+    ) internal view returns (bool) {
+        uint256 userAmount = delayVaultProvider.getTotalAmount(msg.sender);
+        return delayVaultProvider.theTypeOf(userAmount + additionalAmount) == delayVaultProvider.theTypeOf(userAmount);
     }
 }
