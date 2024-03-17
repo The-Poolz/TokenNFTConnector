@@ -67,7 +67,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         );
         amountOut = calcMinusFee(amountOut);
         require(
-            _checkCurrentTier(amountOut),
+            !checkIncreaseTier(msg.sender, amountOut),
             "TokenNFTConnector: please update your tier level"
         );
         token.approve(address(delayVaultProvider), amountOut);
@@ -96,10 +96,8 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         );
     }
 
-    function _checkCurrentTier(
-        uint256 additionalAmount
-    ) internal view returns (bool) {
-        uint256 userAmount = delayVaultProvider.getTotalAmount(msg.sender);
-        return delayVaultProvider.theTypeOf(userAmount + additionalAmount) == delayVaultProvider.theTypeOf(userAmount);
+    function checkIncreaseTier(address user, uint256 additionalAmount) public view returns (bool) {
+        uint256 userAmount = delayVaultProvider.getTotalAmount(user);
+        return delayVaultProvider.theTypeOf(userAmount + additionalAmount) > delayVaultProvider.theTypeOf(userAmount);
     }
 }

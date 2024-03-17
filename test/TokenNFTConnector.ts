@@ -81,4 +81,12 @@ describe("TokenNFTConnector", function () {
             "TokenNFTConnector: please update your tier level"
         )
     })
+
+    it("should return true if the level has increased", async () => {
+        expect(await tokenNFTConnector.checkIncreaseTier(owner.address, amount * 10000n)).to.equal(true)
+    })
+
+    it("should return false if the level doesn't increase", async () => {
+        expect(await tokenNFTConnector.checkIncreaseTier(owner.address, amount)).to.equal(false)
+    })
 }) 
