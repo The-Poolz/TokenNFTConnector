@@ -8,6 +8,8 @@ import "./interfaces/ISwapRouter.sol";
 import "./ConnectorManageable.sol";
 
 contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
+    using SafeERC20 for IERC20;
+
     ISwapRouter public swapRouter;
     IDelayVaultProvider public delayVaultProvider;
     IERC20 public pairToken;
@@ -55,8 +57,8 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             "TokenNFTConnector: no allowance"
         );
 
-        tokenToSwap.transferFrom(msg.sender, address(this), amountIn);
-        tokenToSwap.approve(address(swapRouter), amountIn);
+        tokenToSwap.safeTransferFrom(msg.sender, address(this), amountIn);
+        tokenToSwap.safeIncreaseAllowance(address(swapRouter), amountIn);
 
         amountOut = swapRouter.exactInput(
             ISwapRouter.ExactInputParams({
@@ -72,7 +74,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             !checkIncreaseTier(msg.sender, amountOut),
             "TokenNFTConnector: please update your tier level"
         );
-        token.approve(address(delayVaultProvider), amountOut);
+        token.safeIncreaseAllowance(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
         delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
