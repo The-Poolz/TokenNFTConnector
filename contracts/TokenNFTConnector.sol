@@ -44,6 +44,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
 
     function createLeaderboard(
         uint256 amountIn,
+        uint256 amountOutMinimum,
         SwapParams[] calldata poolsData
     ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
         IERC20 tokenToSwap = (poolsData.length > 0)
@@ -62,10 +63,11 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
                 path: getBytes(poolsData),
                 recipient: address(this),
                 amountIn: amountIn,
-                amountOutMinimum: 0
+                amountOutMinimum: amountOutMinimum
             })
         );
         amountOut = calcMinusFee(amountOut);
+        require(amountOut >= amountOutMinimum, "TokenNFTConnector: insufficient output amount");
         require(
             !checkIncreaseTier(msg.sender, amountOut),
             "TokenNFTConnector: please update your tier level"
