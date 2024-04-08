@@ -82,6 +82,12 @@ describe("TokenNFTConnector", function () {
         )
     })
 
+    it("should revert invelid amountOutMinimum", async () => {
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount, amount*3n, pairData)).to.be.revertedWith(
+            "TokenNFTConnector: insufficient output amount"
+        )
+    })
+
     it("should return true if the level has increased", async () => {
         expect(await tokenNFTConnector.checkIncreaseTier(owner.address, amount * 10000n)).to.equal(true)
     })
