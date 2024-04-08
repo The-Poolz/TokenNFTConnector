@@ -55,7 +55,7 @@ describe("TokenNFTConnector", function () {
 
     it("should increase delay NFT counter", async () => {
         const currentCounter = await delayVaultProvider.counter()
-        await tokenNFTConnector.connect(owner).createLeaderboard(amount, pairData)
+        await tokenNFTConnector.connect(owner).createLeaderboard(amount, amount*2n, pairData)
         expect(await delayVaultProvider.counter()).to.equal(BigInt(currentCounter) + 1n)
     })
 
@@ -64,21 +64,27 @@ describe("TokenNFTConnector", function () {
         const userAddress = await user.getAddress()
         await tokenToSwap.transfer(userAddress, amount)
         await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), amount)
-        await tokenNFTConnector.connect(user).createLeaderboard(amount, pairData)
+        await tokenNFTConnector.connect(user).createLeaderboard(amount, amount*2n, pairData)
         expect(await delayVaultProvider.ownerToAmount(userAddress)).to.equal(BigInt(amount) * 2n)
     })
 
     it("should revert if no allowance", async () => {
         const user = await ethers.provider.getSigner(2)
-        await expect(tokenNFTConnector.connect(user).createLeaderboard(amount, [])).to.be.revertedWith(
+        await expect(tokenNFTConnector.connect(user).createLeaderboard(amount, amount*2n, [])).to.be.revertedWith(
             "TokenNFTConnector: no allowance"
         )
     })
 
     it("should revert invalid tier swap", async () => {
         await tokenToSwap.connect(owner).approve(await tokenNFTConnector.getAddress(), amount * 10000n)
-        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount * 10000n, pairData)).to.be.revertedWith(
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount * 10000n, amount*2n, pairData)).to.be.revertedWith(
             "TokenNFTConnector: please update your tier level"
+        )
+    })
+
+    it("should revert invelid amountOutMinimum", async () => {
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount, amount*3n, pairData)).to.be.revertedWith(
+            "TokenNFTConnector: insufficient output amount"
         )
     })
 

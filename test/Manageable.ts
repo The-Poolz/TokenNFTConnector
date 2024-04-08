@@ -80,7 +80,7 @@ describe("Connector Manageable", function () {
 
     it("should pause createLeaderboard", async () => {
         await tokenNFTConnector.connect(owner).pause()
-        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount, [])).to.be.rejectedWith(
+        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount, amount, [])).to.be.rejectedWith(
             "EnforcedPause()"
         )
     })
@@ -101,7 +101,7 @@ describe("Connector Manageable", function () {
         const beforeBalance = await token.balanceOf(owner.address)
 
         await tokenNFTConnector.setProjectOwnerFee(projectOwnerFee)
-        await tokenNFTConnector.connect(user).createLeaderboard(amount, [])
+        await tokenNFTConnector.connect(user).createLeaderboard(amount, amount, [])
         await tokenNFTConnector.connect(owner).withdrawFee()
 
         const afterBalance = await token.balanceOf(owner.address)
