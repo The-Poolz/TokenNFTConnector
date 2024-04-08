@@ -33,9 +33,9 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             address(_swapRouter) != address(0) &&
                 address(_delayVaultProvider) != address(0) &&
                 address(_pairToken) != address(0),
-            "TokenNFTConnector: ZERO_ADDRESS"
+            "TokenNFTConnector: zero address"
         );
-        require(token != _pairToken, "TokenNFTConnector: SAME_TOKENS_IN_PAIR");
+        require(token != _pairToken, "TokenNFTConnector: same tokens in pair");
         swapRouter = _swapRouter;
         delayVaultProvider = _delayVaultProvider;
         pairToken = _pairToken;
@@ -84,7 +84,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         for (uint256 i; i < data.length; ++i) {
             require(
                 data[i].token != address(0),
-                "TokenNFTConnector: ZERO_ADDRESS"
+                "TokenNFTConnector: zero address token in path"
             );
             result = abi.encodePacked(
                 result,
