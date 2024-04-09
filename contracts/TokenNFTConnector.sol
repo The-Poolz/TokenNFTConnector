@@ -8,6 +8,8 @@ import "./interfaces/ISwapRouter.sol";
 import "./ConnectorManageable.sol";
 
 contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
+    using SafeERC20 for IERC20;
+
     ISwapRouter public immutable swapRouter;
     IDelayVaultProvider public immutable delayVaultProvider;
     IERC20 public immutable pairToken;
@@ -33,9 +35,9 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             address(_swapRouter) != address(0) &&
                 address(_delayVaultProvider) != address(0) &&
                 address(_pairToken) != address(0),
-            "TokenNFTConnector: ZERO_ADDRESS"
+            "TokenNFTConnector: zero address"
         );
-        require(token != _pairToken, "TokenNFTConnector: SAME_TOKENS_IN_PAIR");
+        require(token != _pairToken, "TokenNFTConnector: same tokens in pair");
         swapRouter = _swapRouter;
         delayVaultProvider = _delayVaultProvider;
         pairToken = _pairToken;
@@ -54,15 +56,15 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             tokenToSwap.allowance(msg.sender, address(this)) >= amountIn,
             "TokenNFTConnector: no allowance"
         );
-
-        tokenToSwap.transferFrom(msg.sender, address(this), amountIn);
-        tokenToSwap.approve(address(swapRouter), amountIn);
-
+        uint256 amountBeforeSwap = tokenToSwap.balanceOf(address(this));
+        tokenToSwap.safeTransferFrom(msg.sender, address(this), amountIn);
+        uint256 receivedAmount = tokenToSwap.balanceOf(address(this)) - amountBeforeSwap;
+        tokenToSwap.safeIncreaseAllowance(address(swapRouter), amountIn);
         amountOut = swapRouter.exactInput(
             ISwapRouter.ExactInputParams({
                 path: getBytes(poolsData),
                 recipient: address(this),
-                amountIn: amountIn,
+                amountIn: receivedAmount,
                 amountOutMinimum: amountOutMinimum
             })
         );
@@ -72,7 +74,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             !checkIncreaseTier(msg.sender, amountOut),
             "TokenNFTConnector: please update your tier level"
         );
-        token.approve(address(delayVaultProvider), amountOut);
+        token.safeIncreaseAllowance(address(delayVaultProvider), amountOut);
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
         delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
@@ -84,7 +86,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         for (uint256 i; i < data.length; ++i) {
             require(
                 data[i].token != address(0),
-                "TokenNFTConnector: ZERO_ADDRESS"
+                "TokenNFTConnector: zero address token in path"
             );
             result = abi.encodePacked(
                 result,
