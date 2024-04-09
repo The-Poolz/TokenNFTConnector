@@ -3,8 +3,11 @@ pragma solidity ^0.8.0;
 
 import "../interfaces/ISwapRouter.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract SwapperMock is ISwapRouter {
+    using SafeERC20 for IERC20;
+
     IERC20 public token;
     uint256 public projectOwnerFee;
 
@@ -23,7 +26,7 @@ contract SwapperMock is ISwapRouter {
         amountOut = params.amountIn * 2;
         uint256 fee = calcFee(amountOut);
         // return fee to sender
-        token.transfer(msg.sender, fee);
+        token.safeTransfer(msg.sender, fee);
     }
 
     function calcFee(uint256 amount) public view returns (uint256 fee) {

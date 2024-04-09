@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
 contract ConnectorManageable is Ownable, Pausable {
+    using SafeERC20 for IERC20;
+
     IERC20 public token;
     uint256 public projectOwnerFee;
     uint256 public constant MAX_FEE = 1e18; // 100%
@@ -32,7 +34,7 @@ contract ConnectorManageable is Ownable, Pausable {
     function withdrawFee() external onlyOwner {
         uint256 balance = token.balanceOf(address(this));
         require(balance > 0, "ConnectorManageable: balance is zero");
-        token.transfer(owner(), balance);
+        token.safeTransfer(owner(), balance);
     }
 
     function calcMinusFee(
