@@ -56,15 +56,15 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             tokenToSwap.allowance(msg.sender, address(this)) >= amountIn,
             "TokenNFTConnector: no allowance"
         );
-
+        uint256 amountBeforeSwap = tokenToSwap.balanceOf(address(this));
         tokenToSwap.safeTransferFrom(msg.sender, address(this), amountIn);
+        uint256 receivedAmount = tokenToSwap.balanceOf(address(this)) - amountBeforeSwap;
         tokenToSwap.safeIncreaseAllowance(address(swapRouter), amountIn);
-
         amountOut = swapRouter.exactInput(
             ISwapRouter.ExactInputParams({
                 path: getBytes(poolsData),
                 recipient: address(this),
-                amountIn: amountIn,
+                amountIn: receivedAmount,
                 amountOutMinimum: amountOutMinimum
             })
         );
