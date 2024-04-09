@@ -10,10 +10,10 @@ import "./ConnectorManageable.sol";
 contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
     using SafeERC20 for IERC20;
 
-    ISwapRouter public swapRouter;
-    IDelayVaultProvider public delayVaultProvider;
-    IERC20 public pairToken;
-    uint24 private poolFee; // last pair fee
+    ISwapRouter public immutable swapRouter;
+    IDelayVaultProvider public immutable delayVaultProvider;
+    IERC20 public immutable pairToken;
+    uint24 private immutable poolFee; // last pair fee
 
     struct SwapParams {
         address token;
