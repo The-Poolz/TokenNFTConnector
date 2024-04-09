@@ -59,7 +59,11 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         uint256 amountBeforeSwap = tokenToSwap.balanceOf(address(this));
         tokenToSwap.safeTransferFrom(msg.sender, address(this), amountIn);
         uint256 receivedAmount = tokenToSwap.balanceOf(address(this)) - amountBeforeSwap;
+        // Reset allowance to zero before increasing to use USDT
+        tokenToSwap.forceApprove(address(swapRouter), 0);
+        // Increase allowance using SafeERC20's safeIncreaseAllowance
         tokenToSwap.safeIncreaseAllowance(address(swapRouter), amountIn);
+        
         amountOut = swapRouter.exactInput(
             ISwapRouter.ExactInputParams({
                 path: getBytes(poolsData),
@@ -74,7 +78,11 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             !checkIncreaseTier(msg.sender, amountOut),
             "TokenNFTConnector: please update your tier level"
         );
+
+        // Delay vault only works with POOLX token so no need to reset allowance
+        // Increase allowance
         token.safeIncreaseAllowance(address(delayVaultProvider), amountOut);
+
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
         delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
