@@ -62,7 +62,7 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         // Reset allowance to zero before increasing to use USDT
         tokenToSwap.forceApprove(address(swapRouter), 0);
         // Increase allowance using SafeERC20's safeIncreaseAllowance
-        tokenToSwap.safeIncreaseAllowance(address(swapRouter), amountIn);
+        tokenToSwap.safeIncreaseAllowance(address(swapRouter), receivedAmount);
         
         amountOut = swapRouter.exactInput(
             ISwapRouter.ExactInputParams({
