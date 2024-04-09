@@ -6,18 +6,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
 contract ConnectorManageable is Ownable, Pausable {
-    IERC20 public token;
+    IERC20 public immutable token;
     uint256 public projectOwnerFee;
-    uint256 public constant MAX_FEE = 1e18; // 100%
+    uint256 public constant MAX_FEE = 3e17; // 30% (0.3 * 1e18)
 
     constructor(IERC20 _token, uint256 _projectOwnerFee) Ownable(msg.sender) {
-        require(address(_token) != address(0),"ConnectorManageable: ZERO_ADDRESS");
+        require(address(_token) != address(0), "ConnectorManageable: ZERO_ADDRESS");
         token = _token;
         projectOwnerFee = _projectOwnerFee;
     }
 
     function setProjectOwnerFee(uint256 fee) external onlyOwner {
-        require(fee < MAX_FEE, "ConnectorManageable: invalid fee");
+        require(fee <= MAX_FEE, "ConnectorManageable: invalid fee");
         projectOwnerFee = fee;
     }
 
@@ -35,9 +35,7 @@ contract ConnectorManageable is Ownable, Pausable {
         token.transfer(owner(), balance);
     }
 
-    function calcMinusFee(
-        uint256 amount
-    ) public view returns (uint256 leftAmount) {
-        leftAmount = amount - (amount * projectOwnerFee) / MAX_FEE;
+    function calcMinusFee(uint256 amount) public view returns (uint256 leftAmount) {
+        leftAmount = amount - (amount * projectOwnerFee) / 1e18;
     }
 }

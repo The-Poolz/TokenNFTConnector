@@ -86,7 +86,7 @@ describe("Connector Manageable", function () {
     })
 
     it("owner can't set invalid fee amount", async () => {
-        const invalidFee = parseUnits("1", 18)
+        const invalidFee = parseUnits("5", 17)
         await expect(tokenNFTConnector.connect(owner).setProjectOwnerFee(invalidFee)).to.be.rejectedWith(
             "ConnectorManageable: invalid fee"
         )
