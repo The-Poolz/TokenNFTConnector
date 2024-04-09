@@ -14,6 +14,7 @@ describe("Connector Manageable", function () {
     let user: SignerWithAddress
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
+    const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
     const amount = parseUnits("100", 18)
     const projectOwnerFee = parseUnits("1", 17)
     const poolFee = `3000`
@@ -107,5 +108,47 @@ describe("Connector Manageable", function () {
         const afterBalance = await token.balanceOf(owner.address)
         // swap ratio is 1:2, 10% fee
         expect(afterBalance).to.equal(BigInt(beforeBalance) + BigInt(parseUnits("20", 18)))
+    })
+
+    it("should revert a null token address when deployed", async () => {
+        const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
+        await expect(
+            TokenNFTConnectorFactory.deploy(
+                ZERO_ADDRESS,
+                await tokenToSwap.getAddress(),
+                await swapRouter.getAddress(),
+                await delayVaultProvider.getAddress(),
+                poolFee,
+                `0`
+            )
+        ).to.be.revertedWith("ConnectorManageable: zero address token")
+    })
+
+    it("should revert a null pair token address when deployed", async () => {
+        const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
+        await expect(
+            TokenNFTConnectorFactory.deploy(
+                await token.getAddress(),
+                ZERO_ADDRESS,
+                await swapRouter.getAddress(),
+                await delayVaultProvider.getAddress(),
+                poolFee,
+                `0`
+            )
+        ).to.be.revertedWith("TokenNFTConnector: zero address")
+    })
+
+    it("should revert invalid max fee when deployed", async () => {
+        const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
+        await expect(
+            TokenNFTConnectorFactory.deploy(
+                await token.getAddress(),
+                await tokenToSwap.getAddress(),
+                await swapRouter.getAddress(),
+                await delayVaultProvider.getAddress(),
+                poolFee,
+                parseUnits("1", 22).toString()
+            )
+        ).to.be.revertedWith("ConnectorManageable: fee is too high")
     })
 })

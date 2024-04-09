@@ -13,7 +13,8 @@ contract ConnectorManageable is Ownable, Pausable {
     uint256 public constant MAX_FEE = 1e18; // 100%
 
     constructor(IERC20 _token, uint256 _projectOwnerFee) Ownable(msg.sender) {
-        require(address(_token) != address(0),"ConnectorManageable: ZERO_ADDRESS");
+        require(address(_token) != address(0),"ConnectorManageable: zero address token");
+        require(_projectOwnerFee < MAX_FEE, "ConnectorManageable: fee is too high");
         token = _token;
         projectOwnerFee = _projectOwnerFee;
     }
