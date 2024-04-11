@@ -68,6 +68,16 @@ describe("TokenNFTConnector", function () {
         expect(await delayVaultProvider.ownerToAmount(userAddress)).to.equal(BigInt(amount) * 2n)
     })
 
+    it("should emit event on create leaderboard", async () => {
+        const user = await ethers.provider.getSigner(1)
+        const userAddress = await user.getAddress()
+        await tokenToSwap.transfer(userAddress, amount)
+        await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), amount)
+        const tx = await tokenNFTConnector.connect(user).createLeaderboard(amount, amount*2n, pairData)
+        const hashData = await tokenNFTConnector.getBytes(pairData)
+        await expect(tx).to.emit(tokenNFTConnector, "LeaderboardCreated").withArgs(userAddress, amount, hashData, amount*2n)
+    })
+
     it("should revert if no allowance", async () => {
         const user = await ethers.provider.getSigner(2)
         await expect(tokenNFTConnector.connect(user).createLeaderboard(amount, amount*2n, [])).to.be.revertedWith(
