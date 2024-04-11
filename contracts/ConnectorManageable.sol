@@ -8,6 +8,9 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 contract ConnectorManageable is Ownable, Pausable {
     using SafeERC20 for IERC20;
 
+    event ProjectOwnerFeeChanged(uint256 fee);
+    event ProjectOwnerFeeWithdrawn(uint256 amount);
+
     IERC20 public immutable token;
     uint256 public projectOwnerFee;
     uint256 public constant MAX_FEE = 3e17; // 30% (0.3 * 1e18)
@@ -22,6 +25,7 @@ contract ConnectorManageable is Ownable, Pausable {
     function setProjectOwnerFee(uint256 fee) external onlyOwner {
         require(fee <= MAX_FEE, "ConnectorManageable: invalid fee");
         projectOwnerFee = fee;
+        emit ProjectOwnerFeeChanged(fee);
     }
 
     function pause() external onlyOwner {
@@ -36,6 +40,7 @@ contract ConnectorManageable is Ownable, Pausable {
         uint256 balance = token.balanceOf(address(this));
         require(balance > 0, "ConnectorManageable: balance is zero");
         token.safeTransfer(owner(), balance);
+        emit ProjectOwnerFeeWithdrawn(balance);
     }
 
     function calcMinusFee(uint256 amount) public view returns (uint256 leftAmount) {

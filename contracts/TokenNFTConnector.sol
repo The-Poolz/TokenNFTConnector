@@ -10,6 +10,8 @@ import "./ConnectorManageable.sol";
 contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
     using SafeERC20 for IERC20;
 
+    event LeaderboardCreated(address indexed user, uint256 amountIn, bytes path, uint256 amountOut);
+
     ISwapRouter public immutable swapRouter;
     IDelayVaultProvider public immutable delayVaultProvider;
     IERC20 public immutable pairToken;
@@ -63,10 +65,10 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         tokenToSwap.forceApprove(address(swapRouter), 0);
         // Increase allowance using SafeERC20's safeIncreaseAllowance
         tokenToSwap.safeIncreaseAllowance(address(swapRouter), receivedAmount);
-        
+        bytes memory path = getBytes(poolsData);
         amountOut = swapRouter.exactInput(
             ISwapRouter.ExactInputParams({
-                path: getBytes(poolsData),
+                path: path,
                 recipient: address(this),
                 amountIn: receivedAmount,
                 amountOutMinimum: amountOutMinimum
@@ -86,6 +88,8 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
         delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
+
+        emit LeaderboardCreated(msg.sender, amountIn, path, amountOut);
     }
 
     function getBytes(
