@@ -15,7 +15,7 @@ describe("Connector Manageable", function () {
     let swapRouter: SwapperMock
     let delayVaultProvider: DelayMock
     const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
-    const amount = parseUnits("100", 18)
+    const amount = parseUnits("10", 18)
     const projectOwnerFee = parseUnits("1", 17)
     const poolFee = `3000`
 
@@ -47,6 +47,7 @@ describe("Connector Manageable", function () {
             `0`
         ) as TokenNFTConnector
         await token.approve(await tokenNFTConnector.getAddress(), transferAmount)
+        await tokenToSwap.connect(owner).approve(await tokenNFTConnector.getAddress(), transferAmount)
         await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), transferAmount)
     })
 
@@ -95,7 +96,7 @@ describe("Connector Manageable", function () {
 
     it("should return the amount after deducting fee", async () => {
         await tokenNFTConnector.connect(owner).setProjectOwnerFee(projectOwnerFee)
-        expect(await tokenNFTConnector.connect(owner).calcMinusFee(amount)).to.equal(parseUnits("90", 18))
+        expect(await tokenNFTConnector.connect(owner).calcMinusFee(amount)).to.equal(parseUnits("9", 18))
     })
 
     it("withdraw fee", async () => {
@@ -107,7 +108,21 @@ describe("Connector Manageable", function () {
 
         const afterBalance = await token.balanceOf(owner.address)
         // swap ratio is 1:2, 10% fee
-        expect(afterBalance).to.equal(BigInt(beforeBalance) + BigInt(parseUnits("20", 18)))
+        expect(afterBalance).to.equal(BigInt(beforeBalance) + BigInt(parseUnits("2", 18)))
+    })
+
+    it("should emit event on withdraw fee", async () => {
+        const beforeBalance = await token.balanceOf(await tokenNFTConnector.getAddress())
+
+        await tokenNFTConnector.setProjectOwnerFee(projectOwnerFee)
+        await tokenNFTConnector.connect(owner).createLeaderboard(amount, amount * 2n * 9n / 10n, [])
+        const tx = await tokenNFTConnector.connect(owner).withdrawFee()
+        await expect(tx).to.emit(tokenNFTConnector, "ProjectOwnerFeeWithdrawn").withArgs(beforeBalance + BigInt(parseUnits("2", 18)))
+    })
+
+    it("should emit event on set fee", async () => {
+        const tx = await tokenNFTConnector.connect(owner).setProjectOwnerFee(projectOwnerFee)
+        await expect(tx).to.emit(tokenNFTConnector, "ProjectOwnerFeeChanged").withArgs(projectOwnerFee)
     })
 
     it("should revert a null token address when deployed", async () => {
