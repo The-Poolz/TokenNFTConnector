@@ -38,14 +38,14 @@ describe("Connector Manageable", function () {
     beforeEach(async () => {
         const transferAmount = parseUnits("100", 18)
         const TokenNFTConnectorFactory = await ethers.getContractFactory("TokenNFTConnector")
-        tokenNFTConnector = await TokenNFTConnectorFactory.deploy(
+        tokenNFTConnector = (await TokenNFTConnectorFactory.deploy(
             await token.getAddress(),
             await tokenToSwap.getAddress(),
             await swapRouter.getAddress(),
             await delayVaultProvider.getAddress(),
             poolFee,
             `0`
-        ) as TokenNFTConnector
+        )) as TokenNFTConnector
         await token.approve(await tokenNFTConnector.getAddress(), transferAmount)
         await tokenToSwap.connect(owner).approve(await tokenNFTConnector.getAddress(), transferAmount)
         await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), transferAmount)
@@ -75,8 +75,9 @@ describe("Connector Manageable", function () {
     })
 
     it("should revert if the fee balance is empty", async () => {
-        await expect(tokenNFTConnector.connect(owner).withdrawFee()).to.be.rejectedWith(
-            "ConnectorManageable: balance is zero"
+        await expect(tokenNFTConnector.connect(owner).withdrawFee()).to.be.revertedWithCustomError(
+            tokenNFTConnector,
+            "ZeroBalance"
         )
     })
 
@@ -89,8 +90,9 @@ describe("Connector Manageable", function () {
 
     it("owner can't set invalid fee amount", async () => {
         const invalidFee = parseUnits("5", 17)
-        await expect(tokenNFTConnector.connect(owner).setProjectOwnerFee(invalidFee)).to.be.rejectedWith(
-            "ConnectorManageable: invalid fee"
+        await expect(tokenNFTConnector.connect(owner).setProjectOwnerFee(invalidFee)).to.be.revertedWithCustomError(
+            tokenNFTConnector,
+            "FeeTooHigh"
         )
     })
 
@@ -115,9 +117,11 @@ describe("Connector Manageable", function () {
         const beforeBalance = await token.balanceOf(await tokenNFTConnector.getAddress())
 
         await tokenNFTConnector.setProjectOwnerFee(projectOwnerFee)
-        await tokenNFTConnector.connect(owner).createLeaderboard(amount, amount * 2n * 9n / 10n, [])
+        await tokenNFTConnector.connect(owner).createLeaderboard(amount, (amount * 2n * 9n) / 10n, [])
         const tx = await tokenNFTConnector.connect(owner).withdrawFee()
-        await expect(tx).to.emit(tokenNFTConnector, "ProjectOwnerFeeWithdrawn").withArgs(beforeBalance + BigInt(parseUnits("2", 18)))
+        await expect(tx)
+            .to.emit(tokenNFTConnector, "ProjectOwnerFeeWithdrawn")
+            .withArgs(beforeBalance + BigInt(parseUnits("2", 18)))
     })
 
     it("should emit event on set fee", async () => {
@@ -136,7 +140,7 @@ describe("Connector Manageable", function () {
                 poolFee,
                 `0`
             )
-        ).to.be.revertedWith("ConnectorManageable: zero address token")
+        ).to.be.revertedWithCustomError(TokenNFTConnectorFactory, "NoZeroAddress")
     })
 
     it("should revert a null pair token address when deployed", async () => {
@@ -150,7 +154,7 @@ describe("Connector Manageable", function () {
                 poolFee,
                 `0`
             )
-        ).to.be.revertedWith("TokenNFTConnector: zero address")
+        ).to.be.revertedWithCustomError(TokenNFTConnectorFactory, "NoZeroAddress")
     })
 
     it("should revert invalid max fee when deployed", async () => {
@@ -164,6 +168,6 @@ describe("Connector Manageable", function () {
                 poolFee,
                 parseUnits("1", 22).toString()
             )
-        ).to.be.revertedWith("ConnectorManageable: fee is too high")
+        ).to.be.revertedWithCustomError(TokenNFTConnectorFactory, "FeeTooHigh")
     })
 })
