@@ -11,19 +11,23 @@ contract ConnectorManageable is Ownable, Pausable {
     event ProjectOwnerFeeChanged(uint256 fee);
     event ProjectOwnerFeeWithdrawn(uint256 amount);
 
+    error FeeTooHigh();
+    error ZeroBalance();
+    error NoZeroAddress();
+
     IERC20 public immutable token;
     uint256 public projectOwnerFee;
     uint256 public constant MAX_FEE = 3e17; // 30% (0.3 * 1e18)
 
     constructor(IERC20 _token, uint256 _projectOwnerFee) Ownable(msg.sender) {
-        require(address(_token) != address(0),"ConnectorManageable: zero address token");
-        require(_projectOwnerFee < MAX_FEE, "ConnectorManageable: fee is too high");
+        if (address(_token) == address(0)) revert NoZeroAddress();
+        if (_projectOwnerFee > MAX_FEE) revert FeeTooHigh();
         token = _token;
         projectOwnerFee = _projectOwnerFee;
     }
 
     function setProjectOwnerFee(uint256 fee) external onlyOwner {
-        require(fee <= MAX_FEE, "ConnectorManageable: invalid fee");
+        if (fee > MAX_FEE) revert FeeTooHigh();
         projectOwnerFee = fee;
         emit ProjectOwnerFeeChanged(fee);
     }
@@ -38,7 +42,7 @@ contract ConnectorManageable is Ownable, Pausable {
 
     function withdrawFee() external onlyOwner {
         uint256 balance = token.balanceOf(address(this));
-        require(balance > 0, "ConnectorManageable: balance is zero");
+        if (balance == 0) revert ZeroBalance();
         token.safeTransfer(owner(), balance);
         emit ProjectOwnerFeeWithdrawn(balance);
     }

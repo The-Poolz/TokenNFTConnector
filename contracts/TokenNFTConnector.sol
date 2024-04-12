@@ -12,6 +12,11 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
 
     event LeaderboardCreated(address indexed user, uint256 amountIn, bytes path, uint256 amountOut);
 
+    error SameTokensInPair();
+    error NoAllowance(uint256 amountIn, uint256 allowance);
+    error InsufficientOutputAmount();
+    error UpdateYourTier(uint256 amountOut);
+
     ISwapRouter public immutable swapRouter;
     IDelayVaultProvider public immutable delayVaultProvider;
     IERC20 public immutable pairToken;
@@ -33,13 +38,10 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         ConnectorManageable(_token, _projectOwnerFee)
         Nameable("TokenNFTConnector", "1.2.0")
     {
-        require(
-            address(_swapRouter) != address(0) &&
-                address(_delayVaultProvider) != address(0) &&
-                address(_pairToken) != address(0),
-            "TokenNFTConnector: zero address"
-        );
-        require(token != _pairToken, "TokenNFTConnector: same tokens in pair");
+        if (address(_token) == address(0)) revert NoZeroAddress();
+        if (address(_pairToken) == address(0)) revert NoZeroAddress();
+        if (address(_swapRouter) == address(0)) revert NoZeroAddress();
+        if (token == _pairToken) revert SameTokensInPair();
         swapRouter = _swapRouter;
         delayVaultProvider = _delayVaultProvider;
         pairToken = _pairToken;
@@ -54,10 +56,10 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         IERC20 tokenToSwap = (poolsData.length > 0)
             ? IERC20(poolsData[0].token)
             : pairToken;
-        require(
-            tokenToSwap.allowance(msg.sender, address(this)) >= amountIn,
-            "TokenNFTConnector: no allowance"
-        );
+
+        uint256 allowance = tokenToSwap.allowance(msg.sender, address(this));
+        if (allowance < amountIn) revert NoAllowance(amountIn, allowance);
+
         uint256 amountBeforeSwap = tokenToSwap.balanceOf(address(this));
         tokenToSwap.safeTransferFrom(msg.sender, address(this), amountIn);
         uint256 receivedAmount = tokenToSwap.balanceOf(address(this)) - amountBeforeSwap;
@@ -75,11 +77,8 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
             })
         );
         amountOut = calcMinusFee(amountOut);
-        require(amountOut >= amountOutMinimum, "TokenNFTConnector: insufficient output amount");
-        require(
-            !checkIncreaseTier(msg.sender, amountOut),
-            "TokenNFTConnector: please update your tier level"
-        );
+        if (amountOut < amountOutMinimum) revert InsufficientOutputAmount();
+        if (checkIncreaseTier(msg.sender, amountOut)) revert UpdateYourTier(amountOut);
 
         // Delay vault only works with POOLX token so no need to reset allowance
         // Increase allowance
