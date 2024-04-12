@@ -31,14 +31,14 @@ describe("TokenNFTConnector", function () {
         const DelayVaultProvider = await ethers.getContractFactory("DelayMock")
         delayVaultProvider = await DelayVaultProvider.deploy()
         const TokenNFTConnectorFactory = await ethers.getContractFactory(contractName)
-        tokenNFTConnector = await TokenNFTConnectorFactory.deploy(
+        tokenNFTConnector = (await TokenNFTConnectorFactory.deploy(
             await token.getAddress(),
             await tokenToSwap.getAddress(),
             await swapRouter.getAddress(),
             await delayVaultProvider.getAddress(),
             poolFee,
             `0`
-        ) as TokenNFTConnector
+        )) as TokenNFTConnector
         // approve token to swap
         await tokenToSwap.approve(tokenNFTConnector.getAddress(), parseUnits("10000", 18))
         pairData = [{ token: await tokenToSwap.getAddress(), fee: poolFee }]
@@ -48,14 +48,14 @@ describe("TokenNFTConnector", function () {
     it("should return name of the contract", async () => {
         expect(await tokenNFTConnector.name()).to.equal(contractName)
     })
-    
+
     it("should return version of the contract", async () => {
         expect(await tokenNFTConnector.version()).to.equal(contractVersion)
     })
 
     it("should increase delay NFT counter", async () => {
         const currentCounter = await delayVaultProvider.counter()
-        await tokenNFTConnector.connect(owner).createLeaderboard(amount, amount*2n, pairData)
+        await tokenNFTConnector.connect(owner).createLeaderboard(amount, amount * 2n, pairData)
         expect(await delayVaultProvider.counter()).to.equal(BigInt(currentCounter) + 1n)
     })
 
@@ -64,7 +64,7 @@ describe("TokenNFTConnector", function () {
         const userAddress = await user.getAddress()
         await tokenToSwap.transfer(userAddress, amount)
         await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), amount)
-        await tokenNFTConnector.connect(user).createLeaderboard(amount, amount*2n, pairData)
+        await tokenNFTConnector.connect(user).createLeaderboard(amount, amount * 2n, pairData)
         expect(await delayVaultProvider.ownerToAmount(userAddress)).to.equal(BigInt(amount) * 2n)
     })
 
@@ -73,29 +73,31 @@ describe("TokenNFTConnector", function () {
         const userAddress = await user.getAddress()
         await tokenToSwap.transfer(userAddress, amount)
         await tokenToSwap.connect(user).approve(await tokenNFTConnector.getAddress(), amount)
-        const tx = await tokenNFTConnector.connect(user).createLeaderboard(amount, amount*2n, pairData)
+        const tx = await tokenNFTConnector.connect(user).createLeaderboard(amount, amount * 2n, pairData)
         const hashData = await tokenNFTConnector.getBytes(pairData)
-        await expect(tx).to.emit(tokenNFTConnector, "LeaderboardCreated").withArgs(userAddress, amount, hashData, amount*2n)
+        await expect(tx)
+            .to.emit(tokenNFTConnector, "LeaderboardCreated")
+            .withArgs(userAddress, amount, hashData, amount * 2n)
     })
 
     it("should revert if no allowance", async () => {
         const user = await ethers.provider.getSigner(2)
-        await expect(tokenNFTConnector.connect(user).createLeaderboard(amount, amount*2n, [])).to.be.revertedWith(
-            "TokenNFTConnector: no allowance"
-        )
+        await expect(
+            tokenNFTConnector.connect(user).createLeaderboard(amount, amount * 2n, [])
+        ).to.be.revertedWithCustomError(tokenNFTConnector, "NoAllowance")
     })
 
     it("should revert invalid tier swap", async () => {
         await tokenToSwap.connect(owner).approve(await tokenNFTConnector.getAddress(), amount * 10000n)
-        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount * 10000n, amount*2n, pairData)).to.be.revertedWith(
-            "TokenNFTConnector: please update your tier level"
-        )
+        await expect(
+            tokenNFTConnector.connect(owner).createLeaderboard(amount * 10000n, amount * 2n, pairData)
+        ).to.be.revertedWithCustomError(tokenNFTConnector, "UpdateYourTier")
     })
 
     it("should revert invelid amountOutMinimum", async () => {
-        await expect(tokenNFTConnector.connect(owner).createLeaderboard(amount, amount*3n, pairData)).to.be.revertedWith(
-            "TokenNFTConnector: insufficient output amount"
-        )
+        await expect(
+            tokenNFTConnector.connect(owner).createLeaderboard(amount, amount * 3n, pairData)
+        ).to.be.revertedWithCustomError(tokenNFTConnector, "InsufficientOutputAmount")   
     })
 
     it("should return true if the level has increased", async () => {
@@ -105,4 +107,4 @@ describe("TokenNFTConnector", function () {
     it("should return false if the level doesn't increase", async () => {
         expect(await tokenNFTConnector.checkIncreaseTier(owner.address, amount)).to.equal(false)
     })
-}) 
+})
