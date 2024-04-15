@@ -2,9 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "./ConnectorManageable.sol";
+import "./interfaces/IDelayVaultProvider.sol";
 
 abstract contract InternalConnector is ConnectorManageable {
     using SafeERC20 for IERC20;
+
+    IDelayVaultProvider public immutable delayVaultProvider;
 
     function _checkAllowance(IERC20 token, uint256 amountIn) internal view {
         uint256 allowance = token.allowance(msg.sender, address(this));
@@ -41,5 +44,14 @@ abstract contract InternalConnector is ConnectorManageable {
             result,
             abi.encodePacked(address(pairToken), poolFee, address(token))
         );
+    }
+
+    function _createNewDelayVault(uint256 amountOut) internal {
+        // Increase allowance for DelayVaultProvider using SafeERC20's
+        // Delay vault only works with POOLX token so no need to reset allowance
+        token.safeIncreaseAllowance(address(delayVaultProvider), amountOut);
+        uint256[] memory delayParams = new uint256[](1);
+        delayParams[0] = amountOut;
+        delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
     }
 }

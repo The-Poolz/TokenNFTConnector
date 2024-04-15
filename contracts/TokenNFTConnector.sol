@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@poolzfinance/poolz-helper-v2/contracts/Nameable.sol";
-import "./interfaces/IDelayVaultProvider.sol";
 import "./interfaces/ISwapRouter.sol";
 import "./InternalConnector.sol";
 
@@ -11,7 +10,6 @@ contract TokenNFTConnector is InternalConnector, ReentrancyGuard, Nameable {
     using SafeERC20 for IERC20;
 
     ISwapRouter public immutable swapRouter;
-    IDelayVaultProvider public immutable delayVaultProvider;
     IERC20 public immutable pairToken;
     uint24 private immutable poolFee; // last pair fee
 
@@ -65,14 +63,7 @@ contract TokenNFTConnector is InternalConnector, ReentrancyGuard, Nameable {
         if (amountOut < amountOutMinimum) revert InsufficientOutputAmount();
         if (checkIncreaseTier(msg.sender, amountOut)) revert UpdateYourTier(amountOut);
 
-        // Delay vault only works with POOLX token so no need to reset allowance
-        // Increase allowance
-        token.safeIncreaseAllowance(address(delayVaultProvider), amountOut);
-
-        uint256[] memory delayParams = new uint256[](1);
-        delayParams[0] = amountOut;
-        delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
-
+        _createNewDelayVault(amountOut);
         emit LeaderboardCreated(msg.sender, amountIn, path, amountOut);
     }
 
