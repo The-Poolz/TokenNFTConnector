@@ -3,11 +3,13 @@ pragma solidity ^0.8.0;
 
 import "./ConnectorManageable.sol";
 import "./interfaces/IDelayVaultProvider.sol";
+import "./interfaces/ISwapRouter.sol";
 
 abstract contract InternalConnector is ConnectorManageable {
     using SafeERC20 for IERC20;
 
     IDelayVaultProvider public immutable delayVaultProvider;
+    ISwapRouter public immutable swapRouter;
 
     function _checkAllowance(IERC20 token, uint256 amountIn) internal view {
         uint256 allowance = token.allowance(msg.sender, address(this));
@@ -53,5 +55,20 @@ abstract contract InternalConnector is ConnectorManageable {
         uint256[] memory delayParams = new uint256[](1);
         delayParams[0] = amountOut;
         delayVaultProvider.createNewDelayVault(msg.sender, delayParams);
+    }
+
+    function _swapTokens(
+        bytes memory path,
+        uint256 amountIn,
+        uint256 amountOutMinimum
+    ) internal returns (uint256) {
+        return swapRouter.exactInput(
+                ISwapRouter.ExactInputParams({
+                    path: path,
+                    recipient: address(this),
+                    amountIn: amountIn,
+                    amountOutMinimum: amountOutMinimum
+                })
+            );
     }
 }

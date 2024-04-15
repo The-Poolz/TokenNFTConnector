@@ -3,13 +3,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@poolzfinance/poolz-helper-v2/contracts/Nameable.sol";
-import "./interfaces/ISwapRouter.sol";
 import "./InternalConnector.sol";
 
 contract TokenNFTConnector is InternalConnector, ReentrancyGuard, Nameable {
     using SafeERC20 for IERC20;
 
-    ISwapRouter public immutable swapRouter;
     IERC20 public immutable pairToken;
     uint24 private immutable poolFee; // last pair fee
 
@@ -51,14 +49,7 @@ contract TokenNFTConnector is InternalConnector, ReentrancyGuard, Nameable {
         // Increase allowance using SafeERC20's safeIncreaseAllowance
         tokenToSwap.safeIncreaseAllowance(address(swapRouter), receivedAmount);
         bytes memory path = getBytes(poolsData);
-        amountOut = swapRouter.exactInput(
-            ISwapRouter.ExactInputParams({
-                path: path,
-                recipient: address(this),
-                amountIn: receivedAmount,
-                amountOutMinimum: amountOutMinimum
-            })
-        );
+        amountOut = _swapTokens(path, receivedAmount, amountOutMinimum);
         amountOut = calcMinusFee(amountOut);
         if (amountOut < amountOutMinimum) revert InsufficientOutputAmount();
         if (checkIncreaseTier(msg.sender, amountOut)) revert UpdateYourTier(amountOut);
