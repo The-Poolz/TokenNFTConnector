@@ -5,27 +5,15 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@poolzfinance/poolz-helper-v2/contracts/Nameable.sol";
 import "./interfaces/IDelayVaultProvider.sol";
 import "./interfaces/ISwapRouter.sol";
-import "./ConnectorManageable.sol";
+import "./InternalConnector.sol";
 
-contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
+contract TokenNFTConnector is InternalConnector, ReentrancyGuard, Nameable {
     using SafeERC20 for IERC20;
-
-    event LeaderboardCreated(address indexed user, uint256 amountIn, bytes path, uint256 amountOut);
-
-    error SameTokensInPair();
-    error NoAllowance(uint256 amountIn, uint256 allowance);
-    error InsufficientOutputAmount();
-    error UpdateYourTier(uint256 amountOut);
 
     ISwapRouter public immutable swapRouter;
     IDelayVaultProvider public immutable delayVaultProvider;
     IERC20 public immutable pairToken;
     uint24 private immutable poolFee; // last pair fee
-
-    struct SwapParams {
-        address token;
-        uint24 fee;
-    }
 
     constructor(
         IERC20 _token,
@@ -52,17 +40,14 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
         uint256 amountIn,
         uint256 amountOutMinimum,
         SwapParams[] calldata poolsData
-    ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
+    ) external override whenNotPaused nonReentrant returns (uint256 amountOut) {
         IERC20 tokenToSwap = (poolsData.length > 0)
             ? IERC20(poolsData[0].token)
             : pairToken;
 
-        uint256 allowance = tokenToSwap.allowance(msg.sender, address(this));
-        if (allowance < amountIn) revert NoAllowance(amountIn, allowance);
-
-        uint256 amountBeforeSwap = tokenToSwap.balanceOf(address(this));
-        tokenToSwap.safeTransferFrom(msg.sender, address(this), amountIn);
-        uint256 receivedAmount = tokenToSwap.balanceOf(address(this)) - amountBeforeSwap;
+        _checkAllowance(tokenToSwap, amountIn);
+        uint256 receivedAmount = _transferInERC20Tokens(tokenToSwap, amountIn);
+    
         // Reset allowance to zero before increasing to use USDT
         tokenToSwap.forceApprove(address(swapRouter), 0);
         // Increase allowance using SafeERC20's safeIncreaseAllowance
@@ -93,22 +78,8 @@ contract TokenNFTConnector is ConnectorManageable, ReentrancyGuard, Nameable {
 
     function getBytes(
         SwapParams[] calldata data
-    ) public view returns (bytes memory result) {
-        for (uint256 i; i < data.length; ++i) {
-            require(
-                data[i].token != address(0),
-                "TokenNFTConnector: zero address token in path"
-            );
-            result = abi.encodePacked(
-                result,
-                abi.encodePacked(data[i].token, data[i].fee)
-            );
-        }
-        // add last path element
-        result = abi.encodePacked(
-            result,
-            abi.encodePacked(address(pairToken), poolFee, address(token))
-        );
+    ) public override view returns (bytes memory result) {
+        return _getBytes(data, pairToken, poolFee, token);
     }
 
     function checkIncreaseTier(address user, uint256 additionalAmount) public view returns (bool) {

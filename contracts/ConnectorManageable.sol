@@ -4,16 +4,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "./ITokenNFTConnector.sol";
 
-contract ConnectorManageable is Ownable, Pausable {
+abstract contract ConnectorManageable is ITokenNFTConnector, Ownable, Pausable {
     using SafeERC20 for IERC20;
-
-    event ProjectOwnerFeeChanged(uint256 fee);
-    event ProjectOwnerFeeWithdrawn(uint256 amount);
-
-    error FeeTooHigh();
-    error ZeroBalance();
-    error NoZeroAddress();
 
     IERC20 public immutable token;
     uint256 public projectOwnerFee;
