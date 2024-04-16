@@ -15,8 +15,8 @@ abstract contract ConnectorManageable is ITokenNFTConnector, Ownable, Pausable {
     IERC20 public immutable token;
     /// @notice The project owner fee percentage
     uint256 public projectOwnerFee;
-    /// @notice The maximum fee percentage allowed
-    uint256 public constant MAX_FEE = 3e17; // 30% (0.3 * 1e18)
+    /// @notice The maximum fee percentage allowed is 30% (0.3 * 1e18).
+    uint256 public constant MAX_FEE = 3e17;
 
     /// @notice Initializes the Connector Manageable Contract
     /// @param _token The token contract address
