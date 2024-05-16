@@ -37,6 +37,6 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2",
-    "@poolzfinance/poolz-helper-v2": "^2.3.5"
+    "@poolzfinance/poolz-helper-v2": "^3.0.0"
   }
 }
