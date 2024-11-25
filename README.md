@@ -5,6 +5,9 @@
 
 Contract that is integrated with `Pancakeswap` to exchange any tokens for `POOLX DelayVault NFT`.
 
+## Audit report
+The audit report is available here: [Audit Report](https://docs.google.com/document/d/1pLkH97n9CBYgKS1mDAUOxKjSAlXCseaS/edit#heading=h.gjdgxs)
+
 ### Navigation
 
 -   [Installation](#installation)
